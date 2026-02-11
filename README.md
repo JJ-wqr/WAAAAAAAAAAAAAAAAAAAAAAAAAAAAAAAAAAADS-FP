@@ -24,7 +24,8 @@ Version Control : GitHub<br>
 
 
 3.1 Architecture Diagram
-To be Drawn Soon <br>
+
+To be Drawn Soon
 
 3.2 Architecture Explanation
 Coming Soon
