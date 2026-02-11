@@ -22,9 +22,12 @@ Version Control : GitHub<br>
 
 # 3.1 Architecture Diagram
 
+Multi-tier architecture (Presentation, Business Logic & Data Layers)
+
 To be Drawn Soon
 
 # 3.2 Architecture Explanation
+
 
 Explain it
 
