@@ -19,13 +19,10 @@ Deployment      : University Server OR Live deployment with HTTPS  (not fully de
 Version Control : GitHub<br>
 
 # 3. System Architecture
-   
-
-
-
 3.1 Architecture Diagram
 
 To be Drawn Soon
 
 3.2 Architecture Explanation
-Coming Soon
+
+
