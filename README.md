@@ -23,7 +23,6 @@ Version Control : GitHub<br>
 
 # 3.1 Architecture Diagram
 
-SPA (Single Page Application)<br>
 ![System Architecture](Diagrams/architecture-diagram.png)<br>
 
 # 3.2 Architecture Explanation
