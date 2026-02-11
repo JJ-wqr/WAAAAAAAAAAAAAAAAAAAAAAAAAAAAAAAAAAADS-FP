@@ -16,6 +16,7 @@ API REST        : REST API<br>
 Database        : PostgreSQL (Main Database for project and user data) / Firebase (for auth only)<br>
 Containerization: Docker<br>
 Deployment      : University Server OR Live deployment with HTTPS  (not fully decided yet)<br>
+Development & Design Tools  :  Figma (UI/UX Design) and Draw.io<br>
 Version Control : GitHub<br>
 
 # 3. System Architecture
