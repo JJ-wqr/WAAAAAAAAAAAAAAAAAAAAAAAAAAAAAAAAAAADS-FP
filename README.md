@@ -26,4 +26,4 @@ Version Control : GitHub<br>
 ![System Architecture](Diagrams/architecture-diagram.png)<br>
 
 # 3.2 Architecture Explanation
-A monolithic application is better for language learning because it simplifies development, deployment, and database management. Monolithic Applications also help to reduce architectural complexity, lower infrastructure costs, and make it easier to maintain for small to medium-scale systems.
+A monolithic backend architecture is better for a language learning web application because it simplifies development, deployment, and data management. Since most language learning systems rely heavily on consistent user progress tracking and integrated business logic, a single unified backend reduces complexity, improves maintainability, lowers infrastructure cost, and provides sufficient performance for small to medium-scale applications.
