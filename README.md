@@ -23,7 +23,8 @@ Version Control : GitHub<br>
 
 # 3.1 Architecture Diagram
 
-SPA (Single Page Application) To be Drawn Soon
+SPA (Single Page Application)<br>
+![System Architecture](Diagrams/architecture-diagram.png)<br>
 
 # 3.2 Architecture Explanation
 The Single Page Application can combines with a backend Rest API. The Single Page Application also make a smooth and interactive user experience. Making it essential for real-time quiz, Multimedia lessons and dynamic process tracking. This architecture ensures scalability, maintainability, and responsiveness, making it suitable for our educational platform website.
