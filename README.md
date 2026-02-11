@@ -26,4 +26,4 @@ Version Control : GitHub<br>
 ![System Architecture](Diagrams/architecture-diagram.png)<br>
 
 # 3.2 Architecture Explanation
-The Single Page Application can combines with a backend Rest API. The Single Page Application also make a smooth and interactive user experience. Making it essential for real-time quiz, Multimedia lessons and dynamic process tracking. This architecture ensures scalability, maintainability, and responsiveness, making it suitable for our educational platform website.
+A monolithic application is better for language learning because it simplifies development, deployment, and database management. Monolithic Applications also help to reduce architectural complexity, lower infrastructure costs, and make it easier to maintain for small to medium-scale systems.
