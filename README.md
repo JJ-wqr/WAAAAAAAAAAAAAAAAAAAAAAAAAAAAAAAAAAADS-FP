@@ -1,7 +1,7 @@
-# Lab Final Project – Web Application Development and Security
-# Course Code: COMP6703001<br>
-# Course Name: Web Application Development and Security<br>
-# Institution: BINUS University International<br>
+Lab Final Project – Web Application Development and Security
+Course Code: COMP6703001<br>
+Course Name: Web Application Development and Security<br>
+Institution: BINUS University International<br>
 
 # 1. Project Information
 
@@ -24,7 +24,7 @@ Version Control : GitHub<br>
 
 
 3.1 Architecture Diagram
-To be Drawn Soon
+To be Drawn Soon <br>
 
 3.2 Architecture Explanation
 Coming Soon
