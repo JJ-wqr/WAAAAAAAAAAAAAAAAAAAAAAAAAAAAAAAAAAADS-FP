@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lab Final Project – Web Application Development and Security
+Course Code: COMP6703001<br>
+Course Name: Web Application Development and Security<br>
+Institution: BINUS University International<br>
 
-## Getting Started
+# 1. Project Information
 
-First, run the development server:
+Project Title: Linguiniy <br>
+Project Domain: Language Learning Web Application
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+# 2. Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Frontend        : Next.js<br>
+Backend         : Node.js or Next.js<br>
+API REST        : REST API<br>
+Database        : PostgreSQL (Main Database for project and user data) / Firebase (for auth only)<br>
+Containerization: Docker<br>
+Deployment      : University Server OR Live deployment with HTTPS  (not fully decided yet)<br>
+Development & Design Tools  :  Figma (UI/UX Design) and Draw.io<br>
+Version Control : GitHub<br>
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# 3. System Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 3.1 Architecture Diagram
 
-## Learn More
+![System Architecture](Diagrams/architecture-diagram.png)<br>
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 3.2 Architecture Explanation
+A monolithic backend architecture is better for a language learning web application because it simplifies development, deployment, and data management. Since most language learning systems rely heavily on consistent user progress tracking and integrated business logic, a single unified backend reduces complexity, improves maintainability, lowers infrastructure cost, and provides sufficient performance for small to medium-scale applications.
