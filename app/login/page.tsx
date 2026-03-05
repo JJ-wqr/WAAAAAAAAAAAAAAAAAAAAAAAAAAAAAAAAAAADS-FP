@@ -85,7 +85,7 @@ const handleGoogleLogin = async () => {
             type="button"
             onClick={handleGoogleLogin}
             className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold p-3 rounded-lg transition flex items-center justify-center">
-            Login with Google
+            Continue with Google
           </button>
         </form>
 
