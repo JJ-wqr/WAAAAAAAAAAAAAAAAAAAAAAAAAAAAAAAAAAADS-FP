@@ -1,34 +1,40 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Play, Lock, CheckCircle2, Clock, Star, ChevronRight, BookOpen } from "lucide-react";
+import { useAuth } from "@/components/authprovider";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-const units = [
+const DEFAULT_PROGRESS: Record<string, string> = { "1": "active" };
+
+const unitData = [
   {
     unit: 1,
     title: "Basics & Greetings",
     lessons: [
-      { id: 1, title: "Hello & Goodbye", duration: "5 min", xp: 10, status: "done", score: 95 },
-      { id: 2, title: "Introductions", duration: "8 min", xp: 15, status: "done", score: 88 },
-      { id: 3, title: "Numbers 1–10", duration: "6 min", xp: 10, status: "done", score: 100 },
-      { id: 4, title: "Colors & Shapes", duration: "10 min", xp: 20, status: "active", score: null },
+      { id: 1, title: "Hello & Goodbye", duration: "5 min", xp: 10 },
+      { id: 2, title: "Introductions", duration: "8 min", xp: 15 },
+      { id: 3, title: "Numbers 1–10", duration: "6 min", xp: 10 },
+      { id: 4, title: "Colors & Shapes", duration: "10 min", xp: 20 },
     ],
   },
   {
     unit: 2,
     title: "Daily Life",
     lessons: [
-      { id: 5, title: "Food & Drinks", duration: "12 min", xp: 20, status: "active", score: null },
-      { id: 6, title: "At the Market", duration: "10 min", xp: 20, status: "locked", score: null },
-      { id: 7, title: "Time & Days", duration: "8 min", xp: 15, status: "locked", score: null },
+      { id: 5, title: "Food & Drinks", duration: "12 min", xp: 20 },
+      { id: 6, title: "At the Market", duration: "10 min", xp: 20 },
+      { id: 7, title: "Time & Days", duration: "8 min", xp: 15 },
     ],
   },
   {
     unit: 3,
     title: "Grammar Foundations",
     lessons: [
-      { id: 8, title: "Present Tense", duration: "15 min", xp: 25, status: "locked", score: null },
-      { id: 9, title: "Past Tense", duration: "18 min", xp: 30, status: "locked", score: null },
-      { id: 10, title: "Question Forms", duration: "12 min", xp: 25, status: "locked", score: null },
+      { id: 8, title: "Present Tense", duration: "15 min", xp: 25 },
+      { id: 9, title: "Past Tense", duration: "18 min", xp: 30 },
+      { id: 10, title: "Question Forms", duration: "12 min", xp: 25 },
     ],
   },
 ];
@@ -36,7 +42,39 @@ const units = [
 const tabs = ["All", "In Progress", "Completed", "Locked"];
 
 export default function LessonsPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("All");
+  const [lessonProgress, setLessonProgress] = useState<Record<string, string>>(DEFAULT_PROGRESS);
+  const [lessonScores, setLessonScores] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!user) return;
+    const docRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(docRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        if (!data.lessonProgress) {
+          updateDoc(docRef, { lessonProgress: DEFAULT_PROGRESS, lessonScores: {} });
+        } else {
+          setLessonProgress(data.lessonProgress);
+          setLessonScores(data.lessonScores ?? {});
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const getStatus = (id: number) => lessonProgress[String(id)] ?? "locked";
+  const getScore = (id: number): number | null => lessonScores[String(id)] ?? null;
+
+  const allLessons = unitData.flatMap((u) => u.lessons);
+  const completedCount = allLessons.filter((l) => getStatus(l.id) === "done").length;
+  const inProgressCount = allLessons.filter((l) => getStatus(l.id) === "active").length;
+
+  const handleStartLesson = (lessonId: number, isReview: boolean) => {
+    router.push(`/dashboard/lessons/quiz/${lessonId}${isReview ? "?review=1" : ""}`);
+  };
 
   return (
     <div className="p-8 space-y-6">
@@ -48,9 +86,9 @@ export default function LessonsPage() {
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Completed", value: "3", icon: CheckCircle2, color: "#34d399", bg: "#ecfdf5" },
-          { label: "In Progress", value: "2", icon: Play, color: "#4a7cf7", bg: "#eef2ff" },
-          { label: "Total Lessons", value: "10", icon: BookOpen, color: "#a78bfa", bg: "#f5f3ff" },
+          { label: "Completed", value: String(completedCount), icon: CheckCircle2, color: "#34d399", bg: "#ecfdf5" },
+          { label: "In Progress", value: String(inProgressCount), icon: Play, color: "#4a7cf7", bg: "#eef2ff" },
+          { label: "Total Lessons", value: String(allLessons.length), icon: BookOpen, color: "#a78bfa", bg: "#f5f3ff" },
         ].map(({ label, value, icon: Icon, color, bg }) => (
           <div key={label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: bg }}>
@@ -82,18 +120,18 @@ export default function LessonsPage() {
 
       {/* Units */}
       <div className="space-y-6">
-        {units.map((unit) => {
+        {unitData.map((unit) => {
           const filtered = unit.lessons.filter((l) => {
+            const status = getStatus(l.id);
             if (activeTab === "All") return true;
-            if (activeTab === "In Progress") return l.status === "active";
-            if (activeTab === "Completed") return l.status === "done";
-            if (activeTab === "Locked") return l.status === "locked";
+            if (activeTab === "In Progress") return status === "active";
+            if (activeTab === "Completed") return status === "done";
+            if (activeTab === "Locked") return status === "locked";
             return true;
           });
           if (filtered.length === 0) return null;
           return (
             <div key={unit.unit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {/* Unit Header */}
               <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold"
@@ -107,46 +145,52 @@ export default function LessonsPage() {
                 </div>
               </div>
 
-              {/* Lessons */}
               <div className="divide-y divide-gray-50">
-                {filtered.map((lesson) => (
-                  <div key={lesson.id} className={`px-6 py-4 flex items-center justify-between ${lesson.status === "locked" ? "opacity-50" : ""}`}>
-                    <div className="flex items-center gap-4">
-                      {/* Status icon */}
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{
-                          background:
-                            lesson.status === "done" ? "#ecfdf5" :
-                            lesson.status === "active" ? "#eef2ff" : "#f9fafb",
-                        }}
-                      >
-                        {lesson.status === "done" && <CheckCircle2 size={20} style={{ color: "#34d399" }} />}
-                        {lesson.status === "active" && <Play size={20} style={{ color: "#4a7cf7" }} />}
-                        {lesson.status === "locked" && <Lock size={20} className="text-gray-400" />}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800 text-sm">{lesson.title}</p>
-                        <div className="flex items-center gap-3 mt-0.5">
-                          <span className="text-xs text-gray-400 flex items-center gap-1"><Clock size={11} /> {lesson.duration}</span>
-                          <span className="text-xs text-blue-400 font-medium flex items-center gap-1"><Star size={11} /> +{lesson.xp} XP</span>
-                          {lesson.score && (
-                            <span className="text-xs text-green-500 font-medium">{lesson.score}%</span>
-                          )}
+                {filtered.map((lesson) => {
+                  const status = getStatus(lesson.id);
+                  const score = getScore(lesson.id);
+                  return (
+                    <div
+                      key={lesson.id}
+                      className={`px-6 py-4 flex items-center justify-between ${status === "locked" ? "opacity-50" : ""}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                          style={{
+                            background:
+                              status === "done" ? "#ecfdf5" :
+                              status === "active" ? "#eef2ff" : "#f9fafb",
+                          }}
+                        >
+                          {status === "done" && <CheckCircle2 size={20} style={{ color: "#34d399" }} />}
+                          {status === "active" && <Play size={20} style={{ color: "#4a7cf7" }} />}
+                          {status === "locked" && <Lock size={20} className="text-gray-400" />}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800 text-sm">{lesson.title}</p>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            <span className="text-xs text-gray-400 flex items-center gap-1"><Clock size={11} /> {lesson.duration}</span>
+                            <span className="text-xs text-blue-400 font-medium flex items-center gap-1"><Star size={11} /> +{lesson.xp} XP</span>
+                            {score !== null && (
+                              <span className="text-xs text-green-500 font-medium">{score}%</span>
+                            )}
+                          </div>
                         </div>
                       </div>
+                      {status !== "locked" && (
+                        <button
+                          onClick={() => handleStartLesson(lesson.id, status === "done")}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white transition hover:opacity-90"
+                          style={{ background: status === "done" ? "#34d399" : "#4a7cf7" }}
+                        >
+                          {status === "done" ? "Review" : "Start"}
+                          <ChevronRight size={14} />
+                        </button>
+                      )}
                     </div>
-                    {lesson.status !== "locked" && (
-                      <button
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white transition hover:opacity-90"
-                        style={{ background: lesson.status === "done" ? "#34d399" : "#4a7cf7" }}
-                      >
-                        {lesson.status === "done" ? "Review" : "Start"}
-                        <ChevronRight size={14} />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );

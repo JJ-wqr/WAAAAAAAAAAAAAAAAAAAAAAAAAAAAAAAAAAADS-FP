@@ -8,6 +8,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword
 } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,12 +18,41 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
   try {
-    await signInWithPopup(auth, googleProvider);
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+
+    // Create Firestore doc in background — don't block navigation
+    const userRef = doc(db, "users", user.uid);
+    getDoc(userRef).then((userSnap) => {
+      if (!userSnap.exists()) {
+        setDoc(userRef, {
+          email: user.email,
+          name: user.displayName,
+          xp: 0,
+          streak: 0,
+          lessonsCompleted: 0,
+          wordsLearned: 0,
+          createdAt: new Date(),
+          skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
+          dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
+          languages: [
+            { code: "ja", name: "Japanese", flag: "🇯🇵", level: "Beginner", xp: 0, maxXp: 1000 },
+            { code: "es", name: "Spanish", flag: "🇪🇸", level: "Beginner", xp: 0, maxXp: 1000 },
+            { code: "fr", name: "French", flag: "🇫🇷", level: "Beginner", xp: 0, maxXp: 1000 },
+          ],
+          lessonProgress: { "1": "active" },
+          lessonScores: {},
+        });
+      }
+    }).catch(console.error);
+
     router.push("/dashboard");
-  } catch (error) {
+
+  } catch (error: any) {
     console.error(error);
+    alert(error.message ?? "Google sign-in failed. Please try again.");
   }
- };
+};
   const handleEmailLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
@@ -34,7 +65,26 @@ export default function LoginPage() {
   const handleRegister = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    const userRef = doc(db, "users", result.user.uid);
+    await setDoc(userRef, {
+      email: result.user.email,
+      name: result.user.displayName ?? email.split("@")[0],
+      xp: 0,
+      streak: 0,
+      lessonsCompleted: 0,
+      wordsLearned: 0,
+      createdAt: new Date(),
+      skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
+      dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
+      languages: [
+        { code: "ja", name: "Japanese", flag: "🇯🇵", level: "Beginner", xp: 0, maxXp: 1000 },
+        { code: "es", name: "Spanish", flag: "🇪🇸", level: "Beginner", xp: 0, maxXp: 1000 },
+        { code: "fr", name: "French", flag: "🇫🇷", level: "Beginner", xp: 0, maxXp: 1000 },
+      ],
+      lessonProgress: { "1": "active" },
+      lessonScores: {},
+    });
     router.push("/dashboard");
   } catch (error: any) {
     alert(error.message);

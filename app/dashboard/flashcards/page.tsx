@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 import { RotateCcw, ThumbsUp, ThumbsDown, Zap, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/components/authprovider";
+import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const deck = [
   { front: "食べる", hint: "taberu", back: "to eat", example: "私は毎日ご飯を食べる。\n(I eat rice every day.)" },
@@ -11,7 +14,10 @@ const deck = [
   { front: "仕事", hint: "shigoto", back: "work / job", example: "仕事が好きです。\n(I like my job.)" },
 ];
 
+const SESSION_XP = 15;
+
 export default function FlashcardsPage() {
+  const { user } = useAuth();
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState<number[]>([]);
@@ -26,6 +32,19 @@ export default function FlashcardsPage() {
     else setUnknown((p) => [...p, index]);
     if (index + 1 >= total) {
       setDone(true);
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        updateDoc(docRef, {
+          xp: increment(SESSION_XP),
+          "dailyGoals.reviewedFlashcards": true,
+          recentActivity: arrayUnion({
+            action: `Flashcard Session – ${total} cards`,
+            lang: "🇯🇵 Japanese",
+            time: new Date().toISOString(),
+            xp: `+${SESSION_XP} XP`,
+          }),
+        });
+      }
     } else {
       setIndex(index + 1);
       setFlipped(false);
