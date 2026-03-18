@@ -1,4 +1,8 @@
 "use client";
+
+import { useAuth } from "@/components/authprovider";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useState } from "react";
 import {
   Flame,
@@ -41,6 +45,16 @@ const dailyGoals = [
 ];
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/");
+    }
+  }, [user, router]);
+  if (!user) return <div>loading...</div>
+    
   const [selectedLang, setSelectedLang] = useState(languages[0]);
 
   return (
@@ -48,7 +62,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Good morning, Alex! 👋</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Good morning, {user.displayName} 👋</h1>
           <p className="text-gray-500 text-sm mt-1">Keep up the streak – you&apos;re on a roll!</p>
         </div>
         {/* Language Selector */}

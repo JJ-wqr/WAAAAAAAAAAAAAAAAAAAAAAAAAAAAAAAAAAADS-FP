@@ -2,16 +2,44 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "@/lib/firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "firebase/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleLogin = async () => {
+  try {
+    await signInWithPopup(auth, googleProvider);
     router.push("/dashboard");
-  };
+  } catch (error) {
+    console.error(error);
+  }
+ };
+  const handleEmailLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    router.push("/dashboard");
+  } catch (error: any) {
+    alert(error.message);
+  }
+};
+  const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    router.push("/dashboard");
+  } catch (error: any) {
+    alert(error.message);
+  }
+};
 
   return (
     <div
@@ -33,7 +61,7 @@ export default function LoginPage() {
           Welcome Back
         </h1>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleEmailLogin} className="space-y-4">
           <input
             type="email"
             placeholder="someone@gmail.com"
@@ -66,12 +94,23 @@ export default function LoginPage() {
         </div>
 
         <button
-          onClick={() => router.push("/dashboard")}
+         type="button"
+          onClick={handleRegister}
+          className="w-full py-3 rounded-lg mt-3 border"
+          style={{ borderColor: "#4a7cf7", color: "#4a7cf7" }}
+        >
+          Register
+        </button>
+
+        <button
+          onClick={handleGoogleLogin}
           className="w-full py-3 rounded-lg text-white font-semibold text-sm transition hover:opacity-90 active:scale-95"
           style={{ background: "#e53935" }}
         >
-          Continue with Google
+          Sign In with Google
         </button>
+
+
 
         <p className="text-center text-sm text-gray-500 mt-5">
           Don&apos;t have an account?{" "}

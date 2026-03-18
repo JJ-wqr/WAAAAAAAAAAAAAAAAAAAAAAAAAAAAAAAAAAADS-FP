@@ -1,12 +1,11 @@
 import Sidebar from "@/components/Sidebar";
 
+import { AuthProvider } from "@/components/authprovider";
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen" style={{ background: "#f0f4ff" }}>
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
+    <div>
+      {children}
     </div>
   );
 }
