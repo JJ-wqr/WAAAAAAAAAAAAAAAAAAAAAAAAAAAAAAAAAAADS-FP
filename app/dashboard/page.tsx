@@ -13,7 +13,7 @@ import {
   Clock,
   Target,
 } from "lucide-react";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const LANG_OPTIONS = [
@@ -54,15 +54,28 @@ export default function DashboardPage() {
           missing.skills = { reading: 0, writing: 0, listening: 0, speaking: 0 };
         if (!data.dailyGoals)
           missing.dailyGoals = { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false };
-        if (!data.languages)
-          missing.languages = [
-            { code: "ja", name: "Japanese", flag: "🇯🇵", level: "Beginner", xp: 0, maxXp: 1000 },
-            { code: "es", name: "Spanish", flag: "🇪🇸", level: "Beginner", xp: 0, maxXp: 1000 },
-            { code: "fr", name: "French", flag: "🇫🇷", level: "Beginner", xp: 0, maxXp: 1000 },
-          ];
         if (!data.recentActivity) missing.recentActivity = [];
+        if (!data.lessonProgress) missing.lessonProgress = { "1": "active" };
+        if (!data.lessonScores) missing.lessonScores = {};
         if (Object.keys(missing).length > 0) updateDoc(docRef, missing);
         setUserData(data);
+      } else {
+        // Document missing — create it now (handles failed creation at login)
+        setDoc(docRef, {
+          email: user.email,
+          name: user.displayName ?? user.email,
+          xp: 0,
+          streak: 0,
+          lessonsCompleted: 0,
+          wordsLearned: 0,
+          createdAt: new Date(),
+          skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
+          dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
+          lessonProgress: { "1": "active" },
+          lessonScores: {},
+          languageXp: { ja: 0, es: 0, fr: 0 },
+          recentActivity: [],
+        }).catch(console.error);
       }
     });
     return () => unsubscribe();
@@ -82,12 +95,16 @@ export default function DashboardPage() {
     { label: "10-min Listening Practice", done: userData?.dailyGoals?.listeningPractice ?? false },
   ];
 
-  const displayLanguages: { code: string; name: string; flag: string; level: string; xp: number; maxXp: number }[] =
-    userData?.languages ?? [
-      { code: "ja", name: "Japanese", flag: "🇯🇵", level: "Beginner", xp: 0, maxXp: 1000 },
-      { code: "es", name: "Spanish", flag: "🇪🇸", level: "Beginner", xp: 0, maxXp: 1000 },
-      { code: "fr", name: "French", flag: "🇫🇷", level: "Beginner", xp: 0, maxXp: 1000 },
-    ];
+  const langXp: Record<string, number> = userData?.languageXp ?? {};
+  const displayLanguages: { code: string; name: string; flag: string; level: string; xp: number; maxXp: number }[] = [
+    { code: "ja", name: "Japanese", flag: "🇯🇵", maxXp: 1000 },
+    { code: "es", name: "Spanish", flag: "🇪🇸", maxXp: 1000 },
+    { code: "fr", name: "French", flag: "🇫🇷", maxXp: 1000 },
+  ].map((l) => {
+    const xp = langXp[l.code] ?? 0;
+    const level = xp >= 800 ? "Advanced" : xp >= 400 ? "Intermediate" : "Beginner";
+    return { ...l, xp, level };
+  });
 
   const recentActivity: { action: string; lang: string; time: string; xp: string }[] =
     [...(userData?.recentActivity ?? [])].reverse().slice(0, 4);

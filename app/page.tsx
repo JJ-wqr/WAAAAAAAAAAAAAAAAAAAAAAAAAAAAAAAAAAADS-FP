@@ -2,13 +2,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase";
 import {
+  signInWithPopup,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  getAdditionalUserInfo,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, googleProvider } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function LoginPage() {
@@ -17,14 +18,13 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const isNew = getAdditionalUserInfo(result)?.isNewUser ?? false;
 
-    // Create Firestore doc in background — don't block navigation
-    const userRef = doc(db, "users", user.uid);
-    getDoc(userRef).then((userSnap) => {
-      if (!userSnap.exists()) {
+      if (isNew) {
+        const userRef = doc(db, "users", user.uid);
         setDoc(userRef, {
           email: user.email,
           name: user.displayName,
@@ -35,24 +35,18 @@ export default function LoginPage() {
           createdAt: new Date(),
           skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
           dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
-          languages: [
-            { code: "ja", name: "Japanese", flag: "🇯🇵", level: "Beginner", xp: 0, maxXp: 1000 },
-            { code: "es", name: "Spanish", flag: "🇪🇸", level: "Beginner", xp: 0, maxXp: 1000 },
-            { code: "fr", name: "French", flag: "🇫🇷", level: "Beginner", xp: 0, maxXp: 1000 },
-          ],
           lessonProgress: { "1": "active" },
           lessonScores: {},
-        });
+          languageXp: { ja: 0, es: 0, fr: 0 },
+        }).catch(console.error);
       }
-    }).catch(console.error);
 
-    router.push("/dashboard");
-
-  } catch (error: any) {
-    console.error(error);
-    alert(error.message ?? "Google sign-in failed. Please try again.");
-  }
-};
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message ?? "Google sign-in failed. Please try again.");
+    }
+  };
   const handleEmailLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   try {

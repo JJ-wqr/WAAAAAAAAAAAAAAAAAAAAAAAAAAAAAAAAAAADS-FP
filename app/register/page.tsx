@@ -2,15 +2,48 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/dashboard");
+    setLoading(true);
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(result.user, { displayName: name || email.split("@")[0] });
+
+      const userRef = doc(db, "users", result.user.uid);
+      await setDoc(userRef, {
+        email: result.user.email,
+        name: name || email.split("@")[0],
+        xp: 0,
+        streak: 0,
+        lessonsCompleted: 0,
+        wordsLearned: 0,
+        createdAt: new Date(),
+        skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
+        dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
+        lessonProgress: { "1": "active" },
+        lessonScores: {},
+        languageXp: { ja: 0, es: 0, fr: 0 },
+        recentActivity: [],
+      });
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,8 +67,15 @@ export default function RegisterPage() {
 
         <form onSubmit={handleRegister} className="space-y-4">
           <input
+            type="text"
+            placeholder="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          />
+          <input
             type="email"
-            placeholder="dhdfkuide@gmail.com"
+            placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
@@ -43,7 +83,7 @@ export default function RegisterPage() {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Password (min. 6 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
@@ -51,26 +91,13 @@ export default function RegisterPage() {
           />
           <button
             type="submit"
-            className="w-full py-3 rounded-lg text-white font-semibold text-sm transition hover:opacity-90 active:scale-95"
+            disabled={loading}
+            className="w-full py-3 rounded-lg text-white font-semibold text-sm transition hover:opacity-90 active:scale-95 disabled:opacity-60"
             style={{ background: "#4a7cf7" }}
           >
-            Register
+            {loading ? "Creating account..." : "Register"}
           </button>
         </form>
-
-        <div className="flex items-center my-4">
-          <div className="flex-1 h-px bg-gray-200" />
-          <span className="px-3 text-xs text-gray-400 uppercase tracking-wider">or</span>
-          <div className="flex-1 h-px bg-gray-200" />
-        </div>
-
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="w-full py-3 rounded-lg text-white font-semibold text-sm transition hover:opacity-90 active:scale-95"
-          style={{ background: "#e53935" }}
-        >
-          Continue with Google
-        </button>
 
         <p className="text-center text-sm text-gray-500 mt-5">
           Already have an account?{" "}

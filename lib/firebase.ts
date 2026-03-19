@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCpQw_JpjN7gYwZ7LTNU7Wc-oJ40y4pKRA",
@@ -11,9 +11,10 @@ const firebaseConfig = {
   appId: "1:864394093073:web:742dbf4afe46901fd907b0"
 };
 
-
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-const firestore = getFirestore(app);
-export const db = firestore;
+// Enable offline persistence so writes are queued even without network
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache(),
+});
 export const googleProvider = new GoogleAuthProvider();
