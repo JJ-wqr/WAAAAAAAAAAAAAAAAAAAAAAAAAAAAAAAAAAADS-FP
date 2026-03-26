@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   signInWithPopup,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   getAdditionalUserInfo,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
@@ -35,9 +34,9 @@ export default function LoginPage() {
           createdAt: new Date(),
           skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
           dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
-          lessonProgress: { "1": "active" },
+          lessonProgress: { "1": "active", "en_1": "active", "es_1": "active", "fr_1": "active" },
           lessonScores: {},
-          languageXp: { ja: 0, es: 0, fr: 0 },
+          languageXp: { ja: 0, en: 0, es: 0, fr: 0 },
         }).catch(console.error);
       }
 
@@ -56,35 +55,6 @@ export default function LoginPage() {
     alert(error.message);
   }
 };
-  const handleRegister = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    const userRef = doc(db, "users", result.user.uid);
-    await setDoc(userRef, {
-      email: result.user.email,
-      name: result.user.displayName ?? email.split("@")[0],
-      xp: 0,
-      streak: 0,
-      lessonsCompleted: 0,
-      wordsLearned: 0,
-      createdAt: new Date(),
-      skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
-      dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
-      languages: [
-        { code: "ja", name: "Japanese", flag: "🇯🇵", level: "Beginner", xp: 0, maxXp: 1000 },
-        { code: "es", name: "Spanish", flag: "🇪🇸", level: "Beginner", xp: 0, maxXp: 1000 },
-        { code: "fr", name: "French", flag: "🇫🇷", level: "Beginner", xp: 0, maxXp: 1000 },
-      ],
-      lessonProgress: { "1": "active" },
-      lessonScores: {},
-    });
-    router.push("/dashboard");
-  } catch (error: any) {
-    alert(error.message);
-  }
-};
-
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
@@ -136,15 +106,6 @@ export default function LoginPage() {
           <span className="px-3 text-xs text-gray-400 uppercase tracking-wider">or</span>
           <div className="flex-1 h-px bg-gray-200" />
         </div>
-
-        <button
-         type="button"
-          onClick={handleRegister}
-          className="w-full py-3 rounded-lg mt-3 border"
-          style={{ borderColor: "#4a7cf7", color: "#4a7cf7" }}
-        >
-          Register
-        </button>
 
         <button
           onClick={handleGoogleLogin}

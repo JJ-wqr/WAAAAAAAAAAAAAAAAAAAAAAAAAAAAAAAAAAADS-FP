@@ -1,21 +1,9 @@
 "use client";
 import { useState } from "react";
 import { Search, Volume2, Star, BookOpen, TrendingUp } from "lucide-react";
-
-const words = [
-  { word: "食べる", romaji: "taberu", meaning: "to eat", category: "Verbs", mastery: 90, known: true },
-  { word: "飲む", romaji: "nomu", meaning: "to drink", category: "Verbs", mastery: 75, known: true },
-  { word: "学校", romaji: "gakkō", meaning: "school", category: "Nouns", mastery: 100, known: true },
-  { word: "電車", romaji: "densha", meaning: "train", category: "Nouns", mastery: 60, known: true },
-  { word: "走る", romaji: "hashiru", meaning: "to run", category: "Verbs", mastery: 40, known: false },
-  { word: "綺麗", romaji: "kirei", meaning: "beautiful / clean", category: "Adjectives", mastery: 85, known: true },
-  { word: "難しい", romaji: "muzukashii", meaning: "difficult", category: "Adjectives", mastery: 30, known: false },
-  { word: "友達", romaji: "tomodachi", meaning: "friend", category: "Nouns", mastery: 95, known: true },
-  { word: "仕事", romaji: "shigoto", meaning: "work / job", category: "Nouns", mastery: 70, known: true },
-  { word: "読む", romaji: "yomu", meaning: "to read", category: "Verbs", mastery: 55, known: false },
-  { word: "可愛い", romaji: "kawaii", meaning: "cute", category: "Adjectives", mastery: 80, known: true },
-  { word: "忘れる", romaji: "wasureru", meaning: "to forget", category: "Verbs", mastery: 25, known: false },
-];
+import { useLang } from "@/components/languageprovider";
+import { vocabularyData } from "@/lib/vocabularyData";
+import { getLangInfo } from "@/lib/languages";
 
 const categories = ["All", "Nouns", "Verbs", "Adjectives"];
 
@@ -26,6 +14,10 @@ function masteryColor(m: number) {
 }
 
 export default function VocabularyPage() {
+  const { lang } = useLang();
+  const words = vocabularyData[lang];
+  const langInfo = getLangInfo(lang);
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [filter, setFilter] = useState<"all" | "known" | "learning">("all");
@@ -33,7 +25,7 @@ export default function VocabularyPage() {
   const filtered = words.filter((w) => {
     const matchCat = category === "All" || w.category === category;
     const matchSearch =
-      w.word.includes(search) ||
+      w.word.toLowerCase().includes(search.toLowerCase()) ||
       w.romaji.toLowerCase().includes(search.toLowerCase()) ||
       w.meaning.toLowerCase().includes(search.toLowerCase());
     const matchFilter =
@@ -49,7 +41,9 @@ export default function VocabularyPage() {
     <div className="p-8 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-800">Vocabulary Bank</h1>
-        <p className="text-gray-500 text-sm mt-1">Track and review all the words you&apos;ve learned.</p>
+        <p className="text-gray-500 text-sm mt-1">
+          {langInfo.flag} {langInfo.name} — Track and review all the words you&apos;ve learned.
+        </p>
       </div>
 
       {/* Stats */}

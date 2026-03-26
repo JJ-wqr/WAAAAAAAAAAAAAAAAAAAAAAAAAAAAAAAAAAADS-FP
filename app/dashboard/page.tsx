@@ -1,6 +1,8 @@
 "use client";
 
 import { useAuth } from "@/components/authprovider";
+import { useLang } from "@/components/languageprovider";
+import { LANGUAGES } from "@/lib/languages";
 import { useEffect, useState } from "react";
 import {
   Flame,
@@ -16,11 +18,6 @@ import {
 import { doc, onSnapshot, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-const LANG_OPTIONS = [
-  { code: "ja", flag: "🇯🇵", name: "Japanese" },
-  { code: "es", flag: "🇪🇸", name: "Spanish" },
-  { code: "fr", flag: "🇫🇷", name: "French" },
-];
 
 function timeAgo(isoString: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
@@ -34,7 +31,7 @@ function timeAgo(isoString: string): string {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [selectedLangCode, setSelectedLangCode] = useState("ja");
+  const { lang: selectedLangCode, setLang: setSelectedLangCode } = useLang();
   const [userData, setUserData] = useState<any>(null);
   const [now, setNow] = useState(new Date());
 
@@ -60,7 +57,6 @@ export default function DashboardPage() {
         if (Object.keys(missing).length > 0) updateDoc(docRef, missing);
         setUserData(data);
       } else {
-        // Document missing — create it now (handles failed creation at login)
         setDoc(docRef, {
           email: user.email,
           name: user.displayName ?? user.email,
@@ -71,9 +67,9 @@ export default function DashboardPage() {
           createdAt: new Date(),
           skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
           dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
-          lessonProgress: { "1": "active" },
+          lessonProgress: { "1": "active", "en_1": "active", "es_1": "active", "fr_1": "active" },
           lessonScores: {},
-          languageXp: { ja: 0, es: 0, fr: 0 },
+          languageXp: { ja: 0, en: 0, es: 0, fr: 0 },
           recentActivity: [],
         }).catch(console.error);
       }
@@ -96,20 +92,16 @@ export default function DashboardPage() {
   ];
 
   const langXp: Record<string, number> = userData?.languageXp ?? {};
-  const displayLanguages: { code: string; name: string; flag: string; level: string; xp: number; maxXp: number }[] = [
-    { code: "ja", name: "Japanese", flag: "🇯🇵", maxXp: 1000 },
-    { code: "es", name: "Spanish", flag: "🇪🇸", maxXp: 1000 },
-    { code: "fr", name: "French", flag: "🇫🇷", maxXp: 1000 },
-  ].map((l) => {
+  const displayLanguages = LANGUAGES.map((l) => {
     const xp = langXp[l.code] ?? 0;
     const level = xp >= 800 ? "Advanced" : xp >= 400 ? "Intermediate" : "Beginner";
-    return { ...l, xp, level };
+    return { ...l, xp, level, maxXp: 1000 };
   });
 
   const recentActivity: { action: string; lang: string; time: string; xp: string }[] =
     [...(userData?.recentActivity ?? [])].reverse().slice(0, 4);
 
-  const selectedLang = LANG_OPTIONS.find((l) => l.code === selectedLangCode) ?? LANG_OPTIONS[0];
+  const selectedLang = LANGUAGES.find((l) => l.code === selectedLangCode) ?? LANGUAGES[0];
   const goalsDone = displayDailyGoals.filter((g) => g.done).length;
   const goalsTotal = displayDailyGoals.length;
 
@@ -131,9 +123,9 @@ export default function DashboardPage() {
           <select
             className="text-sm font-medium text-gray-700 bg-transparent border-none outline-none cursor-pointer"
             value={selectedLangCode}
-            onChange={(e) => setSelectedLangCode(e.target.value)}
+            onChange={(e) => setSelectedLangCode(e.target.value as any)}
           >
-            {LANG_OPTIONS.map((l) => (
+            {LANGUAGES.map((l) => (
               <option key={l.code} value={l.code}>{l.flag} {l.name}</option>
             ))}
           </select>

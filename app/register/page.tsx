@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -32,15 +33,19 @@ export default function RegisterPage() {
         createdAt: new Date(),
         skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
         dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
-        lessonProgress: { "1": "active" },
+        lessonProgress: { "1": "active", "en_1": "active", "es_1": "active", "fr_1": "active" },
         lessonScores: {},
-        languageXp: { ja: 0, es: 0, fr: 0 },
+        languageXp: { ja: 0, en: 0, es: 0, fr: 0 },
         recentActivity: [],
       });
 
-      router.push("/dashboard");
-    } catch (error: any) {
-      alert(error.message);
+      router.push("/");
+    } catch (err: any) { 
+      if (err?.code === "auth/email-already-in-use") {
+        setError("This email is already registered. Please log in instead.");
+      } else {
+        setError(err?.message ?? "Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -65,6 +70,11 @@ export default function RegisterPage() {
           Create Account
         </h1>
 
+        {error && (
+          <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="text"

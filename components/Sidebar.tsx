@@ -11,6 +11,8 @@ import {
   LogOut,
   Globe,
 } from "lucide-react";
+import { useLang } from "@/components/languageprovider";
+import { LANGUAGES } from "@/lib/languages";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -23,6 +25,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { lang, setLang } = useLang();
 
   return (
     <aside className="w-64 min-h-screen flex flex-col" style={{ background: "#1a2744" }}>
@@ -55,6 +58,24 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Language Selector */}
+      <div className="px-3 pb-2">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5">
+          <Globe size={15} className="text-blue-300 shrink-0" />
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as any)}
+            className="flex-1 bg-transparent text-blue-200/90 text-xs font-medium border-none outline-none cursor-pointer"
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code} className="text-gray-800 bg-white">
+                {l.flag} {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {/* Logout */}
       <div className="px-3 pb-6">

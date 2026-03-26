@@ -3,49 +3,20 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Play, Lock, CheckCircle2, Clock, Star, ChevronRight, BookOpen } from "lucide-react";
 import { useAuth } from "@/components/authprovider";
+import { useLang } from "@/components/languageprovider";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-
-const DEFAULT_PROGRESS: Record<string, string> = { "1": "active" };
-
-const unitData = [
-  {
-    unit: 1,
-    title: "Basics & Greetings",
-    lessons: [
-      { id: 1, title: "Hello & Goodbye", duration: "5 min", xp: 10 },
-      { id: 2, title: "Introductions", duration: "8 min", xp: 15 },
-      { id: 3, title: "Numbers 1–10", duration: "6 min", xp: 10 },
-      { id: 4, title: "Colors & Shapes", duration: "10 min", xp: 20 },
-    ],
-  },
-  {
-    unit: 2,
-    title: "Daily Life",
-    lessons: [
-      { id: 5, title: "Food & Drinks", duration: "12 min", xp: 20 },
-      { id: 6, title: "At the Market", duration: "10 min", xp: 20 },
-      { id: 7, title: "Time & Days", duration: "8 min", xp: 15 },
-    ],
-  },
-  {
-    unit: 3,
-    title: "Grammar Foundations",
-    lessons: [
-      { id: 8, title: "Present Tense", duration: "15 min", xp: 25 },
-      { id: 9, title: "Past Tense", duration: "18 min", xp: 30 },
-      { id: 10, title: "Question Forms", duration: "12 min", xp: 25 },
-    ],
-  },
-];
+import { unitData } from "@/lib/lessonData";
+import { progressKey } from "@/lib/languages";
 
 const tabs = ["All", "In Progress", "Completed", "Locked"];
 
 export default function LessonsPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { lang } = useLang();
   const [activeTab, setActiveTab] = useState("All");
-  const [lessonProgress, setLessonProgress] = useState<Record<string, string>>(DEFAULT_PROGRESS);
+  const [lessonProgress, setLessonProgress] = useState<Record<string, string>>({});
   const [lessonScores, setLessonScores] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -55,7 +26,7 @@ export default function LessonsPage() {
       if (snap.exists()) {
         const data = snap.data();
         if (!data.lessonProgress) {
-          updateDoc(docRef, { lessonProgress: DEFAULT_PROGRESS, lessonScores: {} });
+          updateDoc(docRef, { lessonProgress: { "1": "active" }, lessonScores: {} });
         } else {
           setLessonProgress(data.lessonProgress);
           setLessonScores(data.lessonScores ?? {});
@@ -65,15 +36,24 @@ export default function LessonsPage() {
     return () => unsubscribe();
   }, [user]);
 
-  const getStatus = (id: number) => lessonProgress[String(id)] ?? "locked";
-  const getScore = (id: number): number | null => lessonScores[String(id)] ?? null;
+  const getStatus = (id: number) => {
+    const key = progressKey(lang, id);
+    const val = lessonProgress[key];
+    if (val) return val;
+    // Lesson 1 is always available for all languages
+    if (id === 1) return "active";
+    return "locked";
+  };
 
-  const allLessons = unitData.flatMap((u) => u.lessons);
+  const getScore = (id: number): number | null => lessonScores[progressKey(lang, id)] ?? null;
+
+  const units = unitData[lang];
+  const allLessons = units.flatMap((u) => u.lessons);
   const completedCount = allLessons.filter((l) => getStatus(l.id) === "done").length;
   const inProgressCount = allLessons.filter((l) => getStatus(l.id) === "active").length;
 
   const handleStartLesson = (lessonId: number, isReview: boolean) => {
-    router.push(`/dashboard/lessons/quiz/${lessonId}${isReview ? "?review=1" : ""}`);
+    router.push(`/dashboard/lessons/quiz/${lessonId}?lang=${lang}${isReview ? "&review=1" : ""}`);
   };
 
   return (
@@ -120,7 +100,7 @@ export default function LessonsPage() {
 
       {/* Units */}
       <div className="space-y-6">
-        {unitData.map((unit) => {
+        {units.map((unit) => {
           const filtered = unit.lessons.filter((l) => {
             const status = getStatus(l.id);
             if (activeTab === "All") return true;

@@ -5,119 +5,8 @@ import { CheckCircle2, XCircle, ChevronRight, RotateCcw, Trophy } from "lucide-r
 import { useAuth } from "@/components/authprovider";
 import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-
-const lessonQuizzes: Record<string, { title: string; xp: number; questions: { question: string; options: string[]; answer: number }[] }> = {
-  "1": {
-    title: "Hello & Goodbye",
-    xp: 10,
-    questions: [
-      { question: "How do you say 'Hello' in Japanese?", options: ["さようなら", "ありがとう", "こんにちは", "すみません"], answer: 2 },
-      { question: "What does 'さようなら' mean?", options: ["Hello", "Thank you", "Sorry", "Goodbye"], answer: 3 },
-      { question: "How do you say 'Good morning'?", options: ["こんばんは", "おはようございます", "こんにちは", "おやすみ"], answer: 1 },
-      { question: "What does 'おやすみ' mean?", options: ["Good morning", "Good afternoon", "Goodnight", "Goodbye"], answer: 2 },
-      { question: "How do you greet someone in the evening?", options: ["おはよう", "こんにちは", "こんばんは", "さようなら"], answer: 2 },
-    ],
-  },
-  "2": {
-    title: "Introductions",
-    xp: 15,
-    questions: [
-      { question: "How do you say 'My name is...' in Japanese?", options: ["わたしは〜です", "わたしの〜", "〜がすきです", "〜をください"], answer: 0 },
-      { question: "What does 'よろしくおねがいします' mean?", options: ["Goodbye", "Thank you", "Nice to meet you", "Sorry"], answer: 2 },
-      { question: "How do you ask 'What is your name?'", options: ["おなまえはなんですか", "どこですか", "なんさいですか", "どうですか"], answer: 0 },
-      { question: "What does 'はじめまして' mean?", options: ["See you later", "Nice to meet you", "Thank you", "Excuse me"], answer: 1 },
-      { question: "How do you say 'I am a student'?", options: ["わたしはせんせいです", "わたしはがくせいです", "わたしはいしゃです", "わたしはかいしゃいんです"], answer: 1 },
-    ],
-  },
-  "3": {
-    title: "Numbers 1–10",
-    xp: 10,
-    questions: [
-      { question: "What is 三 (さん)?", options: ["1", "2", "3", "4"], answer: 2 },
-      { question: "How do you say '7' in Japanese?", options: ["ろく", "しち", "はち", "きゅう"], answer: 1 },
-      { question: "What is 十 (じゅう)?", options: ["8", "9", "10", "6"], answer: 2 },
-      { question: "How do you say '2' in Japanese?", options: ["いち", "に", "さん", "し"], answer: 1 },
-      { question: "What does 五 mean?", options: ["3", "4", "5", "6"], answer: 2 },
-    ],
-  },
-  "4": {
-    title: "Colors & Shapes",
-    xp: 20,
-    questions: [
-      { question: "What is 赤 (あか) in English?", options: ["Blue", "Red", "Green", "Yellow"], answer: 1 },
-      { question: "How do you say 'circle' in Japanese?", options: ["三角形", "四角形", "丸", "星"], answer: 2 },
-      { question: "What color is 青 (あお)?", options: ["Red", "White", "Black", "Blue"], answer: 3 },
-      { question: "What is 黄色 (きいろ) in English?", options: ["Pink", "Purple", "Yellow", "Orange"], answer: 2 },
-      { question: "How do you say 'triangle' in Japanese?", options: ["丸", "三角形", "四角形", "星"], answer: 1 },
-    ],
-  },
-  "5": {
-    title: "Food & Drinks",
-    xp: 20,
-    questions: [
-      { question: "What is ごはん (ご飯) in English?", options: ["Bread", "Rice", "Noodles", "Soup"], answer: 1 },
-      { question: "How do you say 'water' in Japanese?", options: ["ジュース", "ミルク", "お茶", "水"], answer: 3 },
-      { question: "What is パン (ぱん) in English?", options: ["Cake", "Cookie", "Bread", "Rice"], answer: 2 },
-      { question: "How do you say 'delicious' in Japanese?", options: ["まずい", "おいしい", "からい", "あまい"], answer: 1 },
-      { question: "What is 牛乳 (ぎゅうにゅう)?", options: ["Juice", "Tea", "Water", "Milk"], answer: 3 },
-    ],
-  },
-  "6": {
-    title: "At the Market",
-    xp: 20,
-    questions: [
-      { question: "How do you say 'How much is this?' in Japanese?", options: ["これはなんですか", "これはいくらですか", "これをください", "ここはどこですか"], answer: 1 },
-      { question: "What does 安い (やすい) mean?", options: ["Expensive", "Cheap", "Free", "Sold out"], answer: 1 },
-      { question: "How do you say 'I'll take this'?", options: ["いりません", "これはいくら", "これをください", "ありがとう"], answer: 2 },
-      { question: "What is 高い (たかい) in English?", options: ["Cheap", "Big", "Expensive", "Small"], answer: 2 },
-      { question: "How do you say 'Do you have...?' in Japanese?", options: ["〜がありますか", "〜をください", "〜はどこ", "〜はいくら"], answer: 0 },
-    ],
-  },
-  "7": {
-    title: "Time & Days",
-    xp: 15,
-    questions: [
-      { question: "How do you say 'Monday' in Japanese?", options: ["火曜日", "水曜日", "月曜日", "木曜日"], answer: 2 },
-      { question: "What does 今日 (きょう) mean?", options: ["Yesterday", "Tomorrow", "Today", "This week"], answer: 2 },
-      { question: "How do you say '3 o'clock'?", options: ["さんじ", "みっつ", "さんにち", "さんかい"], answer: 0 },
-      { question: "What is 明日 (あした)?", options: ["Today", "Yesterday", "Tomorrow", "Next week"], answer: 2 },
-      { question: "How do you say 'Sunday' in Japanese?", options: ["土曜日", "金曜日", "日曜日", "月曜日"], answer: 2 },
-    ],
-  },
-  "8": {
-    title: "Present Tense",
-    xp: 25,
-    questions: [
-      { question: "What is the present form of 食べる (to eat)?", options: ["食べた", "食べる", "食べて", "食べない"], answer: 1 },
-      { question: "How do you say 'I go to school'?", options: ["がっこうにいった", "がっこうにいく", "がっこうにいて", "がっこうにいない"], answer: 1 },
-      { question: "What does 〜ます mean at the end of a verb?", options: ["Past tense", "Negative", "Polite present/future", "Request"], answer: 2 },
-      { question: "How do you say 'I read a book'?", options: ["ほんをよんだ", "ほんをよむ", "ほんをよんで", "ほんをよまない"], answer: 1 },
-      { question: "What is the polite form of 行く (いく)?", options: ["いきます", "いきました", "いきません", "いきたい"], answer: 0 },
-    ],
-  },
-  "9": {
-    title: "Past Tense",
-    xp: 30,
-    questions: [
-      { question: "What is the past form of 食べる (to eat)?", options: ["食べる", "食べます", "食べた", "食べない"], answer: 2 },
-      { question: "How do you say 'I went to Japan'?", options: ["にほんにいく", "にほんにいった", "にほんにいきます", "にほんにいない"], answer: 1 },
-      { question: "What is the polite past of 飲む (to drink)?", options: ["のみます", "のみました", "のんだ", "のみません"], answer: 1 },
-      { question: "How do you say 'I studied'?", options: ["べんきょうする", "べんきょうします", "べんきょうした", "べんきょうしない"], answer: 2 },
-      { question: "What does 〜ました mean?", options: ["Polite present", "Polite past", "Negative past", "Future"], answer: 1 },
-    ],
-  },
-  "10": {
-    title: "Question Forms",
-    xp: 25,
-    questions: [
-      { question: "How do you form a yes/no question in Japanese?", options: ["Add か at the end", "Add は at the start", "Add の at the end", "Change word order"], answer: 0 },
-      { question: "How do you say 'Where is it?'", options: ["なんですか", "どこですか", "だれですか", "いつですか"], answer: 1 },
-      { question: "What does いつ mean?", options: ["Who", "Where", "When", "What"], answer: 2 },
-      { question: "How do you say 'Why?' in Japanese?", options: ["なに", "どこ", "なぜ", "どれ"], answer: 2 },
-      { question: "What particle marks a question in Japanese?", options: ["は", "が", "か", "を"], answer: 2 },
-    ],
-  },
-};
+import { lessonQuizzes } from "@/lib/lessonData";
+import { type LangCode, getLangInfo, progressKey } from "@/lib/languages";
 
 const SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -126,10 +15,13 @@ export default function QuizPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isReview = searchParams.get("review") === "1";
+  const lang = (searchParams.get("lang") ?? "ja") as LangCode;
   const { user } = useAuth();
 
-  const quiz = lessonQuizzes[id] ?? lessonQuizzes["1"];
+  const langQuizzes = lessonQuizzes[lang] ?? lessonQuizzes["ja"];
+  const quiz = langQuizzes[id] ?? langQuizzes["1"];
   const { title, xp, questions } = quiz;
+  const langInfo = getLangInfo(lang);
 
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -154,21 +46,22 @@ export default function QuizPage() {
   const buildUpdates = (earnedXp: number, pct: number) => {
     const currentIdx = SEQUENCE.indexOf(Number(id));
     const nextId = SEQUENCE[currentIdx + 1];
+    const pKey = progressKey(lang, id);
     const updates: Record<string, unknown> = {
       xp: increment(earnedXp),
       lessonsCompleted: increment(1),
       "dailyGoals.completedLesson": true,
-      [`lessonProgress.${id}`]: "done",
-      [`lessonScores.${id}`]: pct,
-      "languageXp.ja": increment(earnedXp),
+      [`lessonProgress.${pKey}`]: "done",
+      [`lessonScores.${pKey}`]: pct,
+      [`languageXp.${lang}`]: increment(earnedXp),
       recentActivity: arrayUnion({
         action: `${title} – ${pct}%`,
-        lang: "🇯🇵 Japanese",
+        lang: `${langInfo.flag} ${langInfo.name}`,
         time: new Date().toISOString(),
         xp: `+${earnedXp} XP`,
       }),
     };
-    if (nextId) updates[`lessonProgress.${nextId}`] = "active";
+    if (nextId) updates[`lessonProgress.${progressKey(lang, nextId)}`] = "active";
     return updates;
   };
 
@@ -268,7 +161,7 @@ export default function QuizPage() {
   return (
     <div className="p-8 max-w-2xl mx-auto space-y-6">
       <div>
-        <p className="text-sm text-gray-400 mb-1">🇯🇵 Japanese · {title}</p>
+        <p className="text-sm text-gray-400 mb-1">{langInfo.flag} {langInfo.name} · {title}</p>
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-600">Question {current + 1} of {questions.length}</span>
           <span className="text-xs text-blue-500 font-semibold bg-blue-50 px-3 py-1 rounded-full">+{xp} XP on completion</span>

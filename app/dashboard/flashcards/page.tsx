@@ -2,22 +2,20 @@
 import { useState } from "react";
 import { RotateCcw, ThumbsUp, ThumbsDown, Zap, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/components/authprovider";
+import { useLang } from "@/components/languageprovider";
 import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-
-const deck = [
-  { front: "食べる", hint: "taberu", back: "to eat", example: "私は毎日ご飯を食べる。\n(I eat rice every day.)" },
-  { front: "飲む", hint: "nomu", back: "to drink", example: "水を飲む。\n(I drink water.)" },
-  { front: "学校", hint: "gakkō", back: "school", example: "学校に行く。\n(I go to school.)" },
-  { front: "電車", hint: "densha", back: "train", example: "電車で来た。\n(I came by train.)" },
-  { front: "友達", hint: "tomodachi", back: "friend", example: "友達と遊ぶ。\n(I play with friends.)" },
-  { front: "仕事", hint: "shigoto", back: "work / job", example: "仕事が好きです。\n(I like my job.)" },
-];
+import { flashcardDecks } from "@/lib/flashcardData";
+import { getLangInfo } from "@/lib/languages";
 
 const SESSION_XP = 15;
 
 export default function FlashcardsPage() {
   const { user } = useAuth();
+  const { lang } = useLang();
+  const deck = flashcardDecks[lang];
+  const langInfo = getLangInfo(lang);
+
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState<number[]>([]);
@@ -36,10 +34,11 @@ export default function FlashcardsPage() {
         const docRef = doc(db, "users", user.uid);
         updateDoc(docRef, {
           xp: increment(SESSION_XP),
+          [`languageXp.${lang}`]: increment(SESSION_XP),
           "dailyGoals.reviewedFlashcards": true,
           recentActivity: arrayUnion({
             action: `Flashcard Session – ${total} cards`,
-            lang: "🇯🇵 Japanese",
+            lang: `${langInfo.flag} ${langInfo.name}`,
             time: new Date().toISOString(),
             xp: `+${SESSION_XP} XP`,
           }),
@@ -144,8 +143,8 @@ export default function FlashcardsPage() {
               className="absolute inset-0 bg-white rounded-3xl shadow-lg border border-gray-100 flex flex-col items-center justify-center p-8"
               style={{ backfaceVisibility: "hidden" }}
             >
-              <p className="text-xs text-gray-400 uppercase tracking-widest mb-4">Japanese → English</p>
-              <p className="text-6xl font-bold text-gray-800 mb-3">{card.front}</p>
+              <p className="text-xs text-gray-400 uppercase tracking-widest mb-4">{langInfo.flag} {langInfo.name} → English</p>
+              <p className="text-5xl font-bold text-gray-800 mb-3 text-center">{card.front}</p>
               <p className="text-lg text-gray-400">{card.hint}</p>
               <p className="text-xs text-gray-300 mt-6">Tap to reveal</p>
             </div>
