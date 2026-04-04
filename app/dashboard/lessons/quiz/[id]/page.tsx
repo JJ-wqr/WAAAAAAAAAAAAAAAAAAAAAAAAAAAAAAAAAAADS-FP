@@ -32,6 +32,7 @@ export default function QuizPage() {
   const [earnedXpDisplay, setEarnedXpDisplay] = useState(xp);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [pendingSave, setPendingSave] = useState<{ updates: Record<string, unknown>; earnedXp: number } | null>(null);
+  const [answers, setAnswers] = useState<{ questionIndex: number; selectedOption: number; isCorrect: boolean }[]>([]);
 
   const q = questions[current];
   const isCorrect = selected === q.answer;
@@ -40,7 +41,9 @@ export default function QuizPage() {
   const handleConfirm = () => {
     if (selected === null) return;
     setConfirmed(true);
-    if (selected === q.answer) setScore((s) => s + 1);
+    const correct = selected === q.answer;
+    if (correct) setScore((s) => s + 1);
+    setAnswers((prev) => [...prev, { questionIndex: current, selectedOption: selected, isCorrect: correct }]);
   };
 
   const buildUpdates = (earnedXp: number, pct: number) => {
@@ -82,19 +85,35 @@ export default function QuizPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, pendingSave]);
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (current + 1 >= questions.length) {
       const finalScore = score;
       const pct = Math.round((finalScore / questions.length) * 100);
       const earnedXp = pct === 100 ? xp + 5 : pct >= 80 ? xp : pct >= 60 ? Math.round(xp * 0.75) : Math.round(xp * 0.5);
       setEarnedXpDisplay(earnedXp);
-      setFinished(true);
+      setFinished(true); // show results immediately — don't wait for saves
 
       if (!isReview && !savedXp) {
         setSavedXp(true);
         const updates = buildUpdates(earnedXp, pct);
+
         if (user) {
-          await executeSave(user.uid, updates);
+          // Fire-and-forget Firestore save
+          executeSave(user.uid, updates);
+
+          // Fire-and-forget Prisma save
+          fetch("/api/quiz/attempt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: user.uid,
+              lessonId: Number(id),
+              lang,
+              score: pct,
+              xpEarned: earnedXp,
+              answers,
+            }),
+          }).catch(() => {});
         } else {
           // user not loaded yet — store and retry via useEffect
           setSavedXp(false);

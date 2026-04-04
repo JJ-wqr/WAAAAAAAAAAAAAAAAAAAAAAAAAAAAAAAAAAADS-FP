@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   signInWithPopup,
   signInWithEmailAndPassword,
@@ -10,11 +10,19 @@ import {
 import { auth, googleProvider } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("registered") === "1") {
+      toast.success("Account created! You can now log in.");
+    }
+  }, [searchParams]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -40,21 +48,47 @@ export default function LoginPage() {
         }).catch(console.error);
       }
 
+      fetch("/api/sync-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName,
+          image: user.photoURL,
+        }),
+      }).catch(() => {});
+
+      toast.success("Login Successful");
       router.push("/dashboard");
     } catch (error: any) {
       console.error(error);
-      alert(error.message ?? "Google sign-in failed. Please try again.");
+      toast.error(error.message ?? "Google sign-in failed. Please try again.");
     }
   };
   const handleEmailLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    router.push("/dashboard");
-  } catch (error: any) {
-    alert(error.message);
-  }
-};
+    e.preventDefault();
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+
+      fetch("/api/sync-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName,
+          image: user.photoURL,
+        }),
+      }).catch(() => {});
+
+      toast.success("Login Successful");
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message ?? "Login failed. Please try again.");
+    }
+  };
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"

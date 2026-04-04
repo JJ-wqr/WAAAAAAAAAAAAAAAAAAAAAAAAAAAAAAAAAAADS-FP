@@ -6,13 +6,13 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -20,12 +20,13 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(result.user, { displayName: name || email.split("@")[0] });
+      const displayName = name || email.split("@")[0];
+      await updateProfile(result.user, { displayName });
 
       const userRef = doc(db, "users", result.user.uid);
-      await setDoc(userRef, {
+      setDoc(userRef, {
         email: result.user.email,
-        name: name || email.split("@")[0],
+        name: displayName,
         xp: 0,
         streak: 0,
         lessonsCompleted: 0,
@@ -37,14 +38,26 @@ export default function RegisterPage() {
         lessonScores: {},
         languageXp: { ja: 0, en: 0, es: 0, fr: 0 },
         recentActivity: [],
-      });
+      }).catch(console.error);
 
-      router.push("/");
-    } catch (err: any) { 
+      // Fire-and-forget — don't block registration on Prisma sync
+      fetch("/api/sync-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: result.user.uid,
+          email: result.user.email,
+          name: displayName,
+          image: null,
+        }),
+      }).catch(() => {});
+
+      router.push("/?registered=1");
+    } catch (err: any) {
       if (err?.code === "auth/email-already-in-use") {
-        setError("This email is already registered. Please log in instead.");
+        toast.error("This email is already registered. Please log in instead.");
       } else {
-        setError(err?.message ?? "Registration failed. Please try again.");
+        toast.error(err?.message ?? "Registration failed. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -70,11 +83,6 @@ export default function RegisterPage() {
           Create Account
         </h1>
 
-        {error && (
-          <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
-            {error}
-          </div>
-        )}
         <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="text"
