@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Search, Volume2, Star, BookOpen, TrendingUp } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
+import SpeechButton from "@/components/SpeechButton";
 import { vocabularyData } from "@/lib/vocabularyData";
 import { getLangInfo } from "@/lib/languages";
 
@@ -36,6 +37,12 @@ export default function VocabularyPage() {
   });
 
   const avgMastery = Math.round(words.reduce((s, w) => s + w.mastery, 0) / words.length);
+
+  const speechLangMap: Record<string, string> = {
+    ja: "ja-JP",
+    es: "es-ES",
+    fr: "fr-FR",
+  };
 
   return (
     <div className="p-8 space-y-6">
@@ -116,9 +123,10 @@ export default function VocabularyPage() {
                 <p className="text-2xl font-bold text-gray-800">{w.word}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{w.romaji}</p>
               </div>
-              <button className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition">
-                <Volume2 size={14} className="text-blue-500" />
-              </button>
+
+              {/* Speech button */}
+              <SpeechButton text={w.word} lang={speechLangMap[lang] || "en-US"} />
+
             </div>
             <p className="text-sm text-gray-600 mb-3">{w.meaning}</p>
             <div className="flex items-center justify-between">
