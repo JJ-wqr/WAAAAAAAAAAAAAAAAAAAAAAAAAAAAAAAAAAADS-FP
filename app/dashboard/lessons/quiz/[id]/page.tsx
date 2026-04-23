@@ -33,6 +33,8 @@ export default function QuizPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [pendingSave, setPendingSave] = useState<{ updates: Record<string, unknown>; earnedXp: number } | null>(null);
   const [answers, setAnswers] = useState<{ questionIndex: number; selectedOption: number; isCorrect: boolean }[]>([]);
+  const [aiFeedback, setAiFeedback] = useState<string>("");
+  const [loadingAI, setLoadingAI] = useState(false);
 
   const q = questions[current];
   const isCorrect = selected === q.answer;
@@ -41,9 +43,16 @@ export default function QuizPage() {
   const handleConfirm = () => {
     if (selected === null) return;
     setConfirmed(true);
+
     const correct = selected === q.answer;
     if (correct) setScore((s) => s + 1);
-    setAnswers((prev) => [...prev, { questionIndex: current, selectedOption: selected, isCorrect: correct }]);
+
+    setAnswers((prev) => [
+      ...prev,
+      { questionIndex: current, selectedOption: selected, isCorrect: correct },
+    ]);
+
+    generateFeedback();
   };
 
   const buildUpdates = (earnedXp: number, pct: number) => {
@@ -125,6 +134,8 @@ export default function QuizPage() {
       setSelected(null);
       setConfirmed(false);
     }
+
+    setAiFeedback("");
   };
 
   if (finished) {
@@ -177,6 +188,32 @@ export default function QuizPage() {
     );
   }
 
+  const generateFeedback = async () => {
+    setLoadingAI(true);
+
+    try {
+      const res = await fetch("/api/ai/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: q.question,
+          userAnswer: selected !== null ? q.options[selected] : "",
+          correctAnswer: q.options[q.answer],
+          lang: langInfo.name,
+        }),
+      });
+
+      const data = await res.json();
+      setAiFeedback(data.feedback);
+    } catch {
+      setAiFeedback("Failed to generate feedback.");
+    }
+
+    setLoadingAI(false);
+  };
+
   return (
     <div className="p-8 max-w-2xl mx-auto space-y-6">
       <div>
@@ -220,8 +257,33 @@ export default function QuizPage() {
           })}
         </div>
         {confirmed && (
-          <div className={`mt-5 p-4 rounded-xl text-sm font-medium ${isCorrect ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
-            {isCorrect ? "✅ Correct! Well done." : `❌ The correct answer is: ${q.options[q.answer]}`}
+          <div className="mt-5 space-y-3">
+            
+            {/* Normal Feedback */}
+            <div
+              className={`p-4 rounded-xl text-sm font-medium ${
+                isCorrect
+                  ? "bg-green-50 text-green-700"
+                  : "bg-red-50 text-red-600"
+              }`}
+            >
+              {isCorrect
+                ? "✅ Correct! Well done."
+                : `❌ The correct answer is: ${q.options[q.answer]}`}
+            </div>
+
+            {/* AI Feedback */}
+            <div className="p-4 rounded-xl bg-purple-50 text-purple-700 text-sm">
+              {loadingAI ? (
+                "🤖 Generating explanation..."
+              ) : (
+                <>
+                  <strong>🤖 AI Explanation:</strong>
+                  <p className="mt-1">{aiFeedback}</p>
+                </>
+              )}
+            </div>
+
           </div>
         )}
       </div>
