@@ -1,52 +1,66 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => ({}));
-  const question = String(body.question ?? "");
-  const userAnswer = String(body.userAnswer ?? "");
-  const correctAnswer = String(body.correctAnswer ?? "");
-  const lang = String(body.lang ?? "English");
-
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("OPENAI_API_KEY is not set");
-    return Response.json(
-      { feedback: "Unable to generate explanation: missing API key." },
-      { status: 500 }
-    );
-  }
+  const { question, userAnswer, correctAnswer, lang } = await req.json();
 
   const prompt = `
-Explain why the answer is correct or incorrect.
+You are a helpful language tutor.
+
+Explain briefly why the answer is correct or incorrect.
 
 Question: ${question}
 User Answer: ${userAnswer}
 Correct Answer: ${correctAnswer}
 
-Give a simple explanation for a beginner learning ${lang}.
+Keep it under 2 sentences.
 `;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are a language tutor." },
-        { role: "user", content: prompt },
-      ],
-    });
+    console.log("CALLING:", "https://api-inference.huggingface.co/models/google/flan-t5-base");
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/google/flan-t5-base",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.HF_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inputs: prompt,
+        }),
+        cache: "no-store",
+      }
+    );
 
-    const feedback =
-      completion.choices?.[0]?.message?.content?.trim() ??
-      "Unable to generate explanation.";
+    const text = await response.text();
+
+    console.log("RAW RESPONSE:", text);
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.error("Not JSON response:", text);
+      return Response.json({
+        feedback: "AI service error. Please try again.",
+      });
+    }
+
+    console.log("HF RESPONSE:", data);
+
+    let feedback = "No AI response.";
+
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      feedback = data[0].generated_text;
+    } else if (data?.error) {
+      feedback = "AI is loading, try again.";
+    }
 
     return Response.json({ feedback });
+
   } catch (error) {
-    console.error("AI feedback route error:", error);
+    console.error(error);
     return Response.json(
-      { feedback: "Unable to generate explanation." },
+      { feedback: "Failed to generate explanation." },
       { status: 500 }
     );
   }
