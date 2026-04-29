@@ -1,66 +1,46 @@
 export async function POST(req: Request) {
-  const { question, userAnswer, correctAnswer, lang } = await req.json();
+  const { question, userAnswer, correctAnswer } = await req.json();
 
-  const prompt = `
-You are a helpful language tutor.
-
-Explain briefly why the answer is correct or incorrect.
+  const prompt = `You are a helpful language tutor. Explain briefly why the answer is correct or incorrect in 1-2 sentences.
 
 Question: ${question}
 User Answer: ${userAnswer}
-Correct Answer: ${correctAnswer}
-
-Keep it under 2 sentences.
-`;
+Correct Answer: ${correctAnswer}`;
 
   try {
-    console.log("CALLING:", "https://api-inference.huggingface.co/models/google/flan-t5-base");
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/google/flan-t5-base",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          inputs: prompt,
-        }),
-        cache: "no-store",
-      }
-    );
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 100,
+        temperature: 0.5,
+      }),
+      cache: "no-store",
+    });
 
-    const text = await response.text();
+    const data = await response.json();
 
-    console.log("RAW RESPONSE:", text);
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.error("Not JSON response:", text);
-      return Response.json({
-        feedback: "AI service error. Please try again.",
-      });
+    if (!response.ok) {
+      console.error("Groq API error:", JSON.stringify(data));
+      return Response.json(
+        { feedback: `AI error: ${data?.error?.message ?? response.statusText}` },
+        { status: 500 }
+      );
     }
 
-    console.log("HF RESPONSE:", data);
-
-    let feedback = "No AI response.";
-
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      feedback = data[0].generated_text;
-    } else if (data?.error) {
-      feedback = "AI is loading, try again.";
-    }
+    const feedback =
+      data?.choices?.[0]?.message?.content?.trim() ?? "No AI response.";
 
     return Response.json({ feedback });
-
   } catch (error) {
-    console.error(error);
+    console.error("Groq AI error:", error);
     return Response.json(
-      { feedback: "Failed to generate explanation." },
+      { feedback: "AI service error. Please try again." },
       { status: 500 }
     );
   }
