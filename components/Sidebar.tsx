@@ -11,9 +11,13 @@ import {
   LogOut,
   Globe,
   MessageCircle,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
 import { LANGUAGES } from "@/lib/languages";
+import { useTheme } from "next-themes";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -25,12 +29,19 @@ const navItems = [
   { href: "/dashboard/profile", label: "Profile", icon: User },
 ];
 
+const THEME_OPTIONS = [
+  { value: "light", icon: Sun, label: "Light" },
+  { value: "system", icon: Monitor, label: "Auto" },
+  { value: "dark", icon: Moon, label: "Dark" },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const { lang, setLang } = useLang();
+  const { theme, setTheme } = useTheme();
 
   return (
-    <aside className="w-64 min-h-screen flex flex-col" style={{ background: "#1a2744" }}>
+    <aside className="w-64 min-h-screen flex flex-col" style={{ background: "var(--bg-sidebar)" }}>
       {/* Logo */}
       <div className="px-6 py-6 flex items-center gap-3 border-b border-white/10">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-lg" style={{ background: "#4a7cf7" }}>
@@ -60,6 +71,27 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Theme Toggle */}
+      <div className="px-3 pb-2">
+        <p className="text-xs text-blue-200/40 px-1 mb-1.5 font-medium">Theme</p>
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5">
+          {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+            <button
+              key={value}
+              onClick={() => setTheme(value)}
+              title={label}
+              className={`flex-1 flex items-center justify-center py-2 rounded-lg transition-all ${
+                theme === value
+                  ? "bg-white/20 text-white"
+                  : "text-blue-200/50 hover:text-blue-200 hover:bg-white/10"
+              }`}
+            >
+              <Icon size={14} />
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Language Selector */}
       <div className="px-3 pb-2">

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 * {
   box-sizing: border-box;
@@ -9,16 +10,67 @@ body {
   padding: 0;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+/* ── CSS Variables ── */
+:root {
+  --bg-page: #f0f2f8;
+  --bg-sidebar: #1a2744;
+  --bg-card: #ffffff;
+  --bg-input: #f8fafc;
+  --bg-muted: #f1f5f9;
+  --border-card: #e2e8f0;
+  --border-input: #e2e8f0;
+  --text-base: #1e293b;
+  --text-muted: #64748b;
+  --text-label: #94a3b8;
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #94a3b8;
 }
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+
+html.dark {
+  --bg-page: #0f172a;
+  --bg-sidebar: #0c1529;
+  --bg-card: #1e293b;
+  --bg-input: #0f172a;
+  --bg-muted: #1e293b;
+  --border-card: #334155;
+  --border-input: #334155;
+  --text-base: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-label: #64748b;
+  --scrollbar-track: #1e293b;
+  --scrollbar-thumb: #475569;
 }
-::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 3px;
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+/* ── Dark mode overrides for common Tailwind patterns ── */
+.dark .bg-white { background-color: var(--bg-card) !important; }
+.dark .bg-gray-50 { background-color: var(--bg-input) !important; }
+.dark .bg-gray-100 { background-color: #273549 !important; }
+.dark .bg-gray-200 { background-color: #334155 !important; }
+
+.dark .border-gray-100 { border-color: var(--border-card) !important; }
+.dark .border-gray-200 { border-color: var(--border-input) !important; }
+
+.dark .text-gray-800 { color: #f1f5f9 !important; }
+.dark .text-gray-700 { color: #e2e8f0 !important; }
+.dark .text-gray-600 { color: #cbd5e1 !important; }
+.dark .text-gray-500 { color: #94a3b8 !important; }
+.dark .text-gray-400 { color: #64748b !important; }
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--bg-input);
+  color: var(--text-base);
+  border-color: var(--border-input);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-label);
 }
