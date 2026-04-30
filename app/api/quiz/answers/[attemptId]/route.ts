@@ -20,7 +20,7 @@ export async function GET(
   });
 
   const total = answers.length;
-  const correct = answers.filter((a) => a.isCorrect).length;
+  const correct = answers.filter((a: { isCorrect: boolean }) => a.isCorrect).length;
 
   return NextResponse.json({ answers, total, correct, incorrect: total - correct });
 }
