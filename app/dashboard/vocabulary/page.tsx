@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-import { Search, Volume2, Star, BookOpen, TrendingUp } from "lucide-react";
+import { BookOpen, Star, TrendingUp } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
-import SpeechButton from "@/components/SpeechButton";
+import { VocabularyFilters } from "./_components/VocabularyFilters";
+import { VocabularyWordCard } from "./_components/VocabularyWordCard";
 import { vocabularyData } from "@/lib/vocabularyData";
 import { getLangInfo } from "@/lib/languages";
 
@@ -73,77 +74,19 @@ export default function VocabularyPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search words..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          />
-        </div>
-        <div className="flex gap-2">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={`px-3 py-2 rounded-xl text-xs font-medium transition ${
-                category === c ? "text-white" : "bg-white text-gray-600 border border-gray-200"
-              }`}
-              style={category === c ? { background: "#4a7cf7" } : {}}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2 ml-auto">
-          {(["all", "known", "learning"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-xl text-xs font-medium capitalize transition ${
-                filter === f ? "text-white" : "bg-white text-gray-600 border border-gray-200"
-              }`}
-              style={filter === f ? { background: "#a78bfa" } : {}}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-      </div>
+      <VocabularyFilters
+        search={search}
+        setSearch={setSearch}
+        category={category}
+        setCategory={setCategory}
+        filter={filter}
+        setFilter={setFilter}
+      />
 
       {/* Word Cards Grid */}
       <div className="grid grid-cols-3 gap-4">
         {filtered.map((w) => (
-          <div key={w.word} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="text-2xl font-bold text-gray-800">{w.word}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{w.romaji}</p>
-              </div>
-
-              {/* Speech button */}
-              <SpeechButton text={w.word} lang={speechLangMap[lang] || "en-US"} />
-
-            </div>
-            <p className="text-sm text-gray-600 mb-3">{w.meaning}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">{w.category}</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${w.mastery}%`, background: masteryColor(w.mastery) }}
-                  />
-                </div>
-                <span className="text-xs font-semibold" style={{ color: masteryColor(w.mastery) }}>
-                  {w.mastery}%
-                </span>
-              </div>
-            </div>
-          </div>
+          <VocabularyWordCard key={w.word} word={w} speechLang={speechLangMap[lang] || "en-US"} />
         ))}
       </div>
 

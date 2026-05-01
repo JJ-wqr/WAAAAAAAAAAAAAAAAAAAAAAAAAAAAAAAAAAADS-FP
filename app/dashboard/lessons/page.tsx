@@ -8,6 +8,9 @@ import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { unitData } from "@/lib/lessonData";
 import { progressKey } from "@/lib/languages";
+import { LessonTabs } from "./_components/LessonTabs";
+import { LessonUnitCard } from "./_components/LessonUnitCard";
+import { LessonRow } from "./_components/LessonRow";
 
 const tabs = ["All", "In Progress", "Completed", "Locked"];
 
@@ -83,20 +86,7 @@ export default function LessonsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-              activeTab === tab ? "text-white" : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-            }`}
-            style={activeTab === tab ? { background: "#4a7cf7" } : {}}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      <LessonTabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Units */}
       <div className="space-y-6">
@@ -111,68 +101,14 @@ export default function LessonsPage() {
           });
           if (filtered.length === 0) return null;
           return (
-            <div key={unit.unit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold"
-                  style={{ background: "#4a7cf7" }}
-                >
-                  {unit.unit}
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-800 text-sm">Unit {unit.unit}</p>
-                  <p className="text-xs text-gray-500">{unit.title}</p>
-                </div>
-              </div>
-
-              <div className="divide-y divide-gray-50">
-                {filtered.map((lesson) => {
-                  const status = getStatus(lesson.id);
-                  const score = getScore(lesson.id);
-                  return (
-                    <div
-                      key={lesson.id}
-                      className={`px-6 py-4 flex items-center justify-between ${status === "locked" ? "opacity-50" : ""}`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                          style={{
-                            background:
-                              status === "done" ? "#ecfdf5" :
-                              status === "active" ? "#eef2ff" : "#f9fafb",
-                          }}
-                        >
-                          {status === "done" && <CheckCircle2 size={20} style={{ color: "#34d399" }} />}
-                          {status === "active" && <Play size={20} style={{ color: "#4a7cf7" }} />}
-                          {status === "locked" && <Lock size={20} className="text-gray-400" />}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-800 text-sm">{lesson.title}</p>
-                          <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-xs text-gray-400 flex items-center gap-1"><Clock size={11} /> {lesson.duration}</span>
-                            <span className="text-xs text-blue-400 font-medium flex items-center gap-1"><Star size={11} /> +{lesson.xp} XP</span>
-                            {score !== null && (
-                              <span className="text-xs text-green-500 font-medium">{score}%</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      {status !== "locked" && (
-                        <button
-                          onClick={() => handleStartLesson(lesson.id, status === "done")}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white transition hover:opacity-90"
-                          style={{ background: status === "done" ? "#34d399" : "#4a7cf7" }}
-                        >
-                          {status === "done" ? "Review" : "Start"}
-                          <ChevronRight size={14} />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <LessonUnitCard
+              key={unit.unit}
+              unit={unit}
+              filtered={filtered}
+              getStatus={getStatus}
+              getScore={getScore}
+              handleStartLesson={handleStartLesson}
+            />
           );
         })}
       </div>

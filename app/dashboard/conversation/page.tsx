@@ -1,8 +1,11 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, Loader2, RefreshCw } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
 import { getLangInfo } from "@/lib/languages";
+import { ChatHeader } from "./_components/ChatHeader";
+import { MessageBubble } from "./_components/MessageBubble";
+import { ChatInput } from "./_components/ChatInput";
 
 interface Message {
   role: "user" | "assistant";
@@ -75,56 +78,12 @@ export default function ConversationPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-6rem)] max-w-3xl mx-auto">
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-4 mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-            style={{ background: "#4a7cf7" }}
-          >
-            <Bot size={20} />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-gray-800">AI Conversation</h1>
-            <p className="text-sm text-gray-500">
-              Practicing {langInfo.flag} {langInfo.name}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={reset}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all"
-        >
-          <RefreshCw size={15} />
-          New chat
-        </button>
-      </div>
+      <ChatHeader lang={lang} onReset={reset} />
 
       {/* Messages */}
       <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 overflow-y-auto flex flex-col gap-3 mb-4">
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            {msg.role === "assistant" && (
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0"
-                style={{ background: "#4a7cf7" }}
-              >
-                <Bot size={14} />
-              </div>
-            )}
-            <div
-              className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                msg.role === "user"
-                  ? "text-white rounded-br-none"
-                  : "bg-gray-100 text-gray-800 rounded-bl-none"
-              }`}
-              style={msg.role === "user" ? { background: "#4a7cf7" } : {}}
-            >
-              {msg.content}
-            </div>
-          </div>
+          <MessageBubble key={i} msg={msg} />
         ))}
 
         {loading && (
@@ -144,25 +103,7 @@ export default function ConversationPage() {
       </div>
 
       {/* Input */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder={`Type in ${langInfo.name}...`}
-          disabled={loading}
-          className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all disabled:opacity-50"
-        />
-        <button
-          onClick={send}
-          disabled={!input.trim() || loading}
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all disabled:opacity-40 shrink-0"
-          style={{ background: "#4a7cf7" }}
-        >
-          <Send size={16} />
-        </button>
-      </div>
+      <ChatInput input={input} setInput={setInput} send={send} loading={loading} />
     </div>
   );
 }
