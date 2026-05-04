@@ -1,4 +1,5 @@
 "use client";
+
 import { TrendingUp, Target, CheckCircle2 } from "lucide-react";
 
 export function DashboardGoalsCard({ displaySkills, selectedLang, displayDailyGoals, goalsDone, goalsTotal }: {

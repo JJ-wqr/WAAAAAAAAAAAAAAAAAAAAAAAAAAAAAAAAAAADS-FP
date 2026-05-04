@@ -1,4 +1,5 @@
 "use client";
+
 import { CheckCircle2, XCircle } from "lucide-react";
 
 export function QuizOptionList({ q, selected, setSelected, confirmed }: any) {

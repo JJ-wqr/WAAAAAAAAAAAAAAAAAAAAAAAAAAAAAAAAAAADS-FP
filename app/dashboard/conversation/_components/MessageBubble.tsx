@@ -1,4 +1,5 @@
 "use client";
+
 import { Bot } from "lucide-react";
 
 type Message = {

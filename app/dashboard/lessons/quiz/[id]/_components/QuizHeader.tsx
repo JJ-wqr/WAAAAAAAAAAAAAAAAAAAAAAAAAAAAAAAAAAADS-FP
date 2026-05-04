@@ -1,4 +1,5 @@
 "use client";
+
 import { type LangInfo } from "@/lib/languages";
 
 export function QuizHeader({ langInfo, title, xp, current, total }: {

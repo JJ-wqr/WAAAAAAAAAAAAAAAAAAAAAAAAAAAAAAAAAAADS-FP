@@ -1,4 +1,5 @@
 "use client";
+
 import { Search } from "lucide-react";
 
 export function VocabularyFilters({ search, setSearch, category, setCategory, filter, setFilter }: {

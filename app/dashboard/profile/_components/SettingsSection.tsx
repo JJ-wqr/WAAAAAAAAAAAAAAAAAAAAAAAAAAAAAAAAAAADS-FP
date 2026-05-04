@@ -1,4 +1,5 @@
 "use client";
+
 import { User, Mail, Shield, Globe, Bell, Palette, ChevronRight } from "lucide-react";
 
 const settingsSections = [

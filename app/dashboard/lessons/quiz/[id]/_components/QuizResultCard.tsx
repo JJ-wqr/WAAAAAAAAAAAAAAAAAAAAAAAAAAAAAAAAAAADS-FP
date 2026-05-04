@@ -1,4 +1,5 @@
 "use client";
+
 import { RotateCcw, ChevronRight, Trophy } from "lucide-react";
 
 export function QuizResultCard({ finalScore, pct, xp, saveError, router, onRetry }: {

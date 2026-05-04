@@ -1,4 +1,5 @@
 "use client";
+
 import { Flame, Zap, BookOpen, CheckCircle2 } from "lucide-react";
 
 export function DashboardStatCards({ userData }: { userData: any }) {

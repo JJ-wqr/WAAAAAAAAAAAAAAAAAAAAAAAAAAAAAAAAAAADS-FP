@@ -1,16 +1,16 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Play, Lock, CheckCircle2, Clock, Star, ChevronRight, BookOpen } from "lucide-react";
+import { Play, CheckCircle2, BookOpen } from "lucide-react";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { unitData } from "@/lib/lessonData";
 import { progressKey } from "@/lib/languages";
 import { LessonTabs } from "./_components/LessonTabs";
 import { LessonUnitCard } from "./_components/LessonUnitCard";
-import { LessonRow } from "./_components/LessonRow";
 
 const tabs = ["All", "In Progress", "Completed", "Locked"];
 

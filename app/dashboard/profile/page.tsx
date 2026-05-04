@@ -1,12 +1,13 @@
 "use client";
+
 import { useState, useEffect } from "react";
-import { User, Mail, Globe, Bell, Shield, Palette } from "lucide-react";
-import { useAuth } from "@/components/authprovider";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { User, Mail, Globe, Bell, Shield, Palette } from "lucide-react";
+import { doc, onSnapshot } from "firebase/firestore";
+import { signOut } from "firebase/auth";
+import { useAuth } from "@/components/authprovider";
+import { db } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { ProfileHeader } from "./_components/ProfileHeader";
 import { AchievementCard } from "./_components/AchievementCard";
 import { ProfileStats } from "./_components/ProfileStats";

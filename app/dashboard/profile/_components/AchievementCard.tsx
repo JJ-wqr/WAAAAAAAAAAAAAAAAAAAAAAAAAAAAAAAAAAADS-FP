@@ -1,4 +1,5 @@
 "use client";
+
 import { CheckCircle2 } from "lucide-react";
 
 export function AchievementCard({ icon, title, desc, earned }: { icon: string; title: string; desc: string; earned: boolean }) {

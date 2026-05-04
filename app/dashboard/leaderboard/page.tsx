@@ -1,8 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useEffect, useState } from "react";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+
 import { useAuth } from "@/components/authprovider";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+
 import { TimeFilterBar } from "./_components/TimeFilterBar";
 import { LeaderboardPodium } from "./_components/PodiumSection";
 import { LeaderboardRow } from "./_components/LeaderboardRow";

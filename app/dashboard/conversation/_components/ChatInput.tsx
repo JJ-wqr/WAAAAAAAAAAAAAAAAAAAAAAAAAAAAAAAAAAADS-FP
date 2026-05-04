@@ -1,4 +1,5 @@
 "use client";
+
 import { Send } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
 import { getLangInfo } from "@/lib/languages";

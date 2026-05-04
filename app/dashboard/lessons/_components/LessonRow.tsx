@@ -1,4 +1,5 @@
 "use client";
+
 import { Play, Lock, CheckCircle2, Clock, Star, ChevronRight } from "lucide-react";
 
 export function LessonRow({ lesson, status, score, handleStartLesson }: {

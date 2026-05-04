@@ -1,6 +1,8 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   LayoutDashboard,
   BookOpen,
@@ -17,7 +19,6 @@ import {
 } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
 import { LANGUAGES } from "@/lib/languages";
-import { useTheme } from "next-themes";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },

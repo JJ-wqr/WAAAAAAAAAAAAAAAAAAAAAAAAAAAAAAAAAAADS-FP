@@ -1,19 +1,12 @@
 "use client";
+
 import { useState } from "react";
 import { BookOpen, Star, TrendingUp } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
-import { VocabularyFilters } from "./_components/VocabularyFilters";
-import { VocabularyWordCard } from "./_components/VocabularyWordCard";
 import { vocabularyData } from "@/lib/vocabularyData";
 import { getLangInfo } from "@/lib/languages";
-
-const categories = ["All", "Nouns", "Verbs", "Adjectives"];
-
-function masteryColor(m: number) {
-  if (m >= 80) return "#34d399";
-  if (m >= 50) return "#f59e0b";
-  return "#f87171";
-}
+import { VocabularyFilters } from "./_components/VocabularyFilters";
+import { VocabularyWordCard } from "./_components/VocabularyWordCard";
 
 export default function VocabularyPage() {
   const { lang } = useLang();

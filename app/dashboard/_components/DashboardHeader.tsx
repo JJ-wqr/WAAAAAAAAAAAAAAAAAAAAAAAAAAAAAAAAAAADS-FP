@@ -1,4 +1,5 @@
 "use client";
+
 import { Globe } from "lucide-react";
 import { LANGUAGES, type LangCode } from "@/lib/languages";
 

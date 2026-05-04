@@ -1,5 +1,6 @@
 "use client";
-import { CheckCircle2, XCircle, ChevronRight, Trophy } from "lucide-react";
+
+import { CheckCircle2, XCircle, ChevronRight, Trophy, RotateCcw } from "lucide-react";
 
 export function QuizHeader({ langInfo, title, xp, current, total }: { langInfo: any; title: string; xp: number; current: number; total: number }) {
   return (
@@ -45,7 +46,7 @@ export function QuizOptionList({ q, selected, setSelected, confirmed }: any) {
   );
 }
 
-export function QuizResultScreen({ finalScore, pct, xp, savedXp, saveError, router, setCurrent, setSelected, setConfirmed, setScore, setFinished, setSavedXp, setEarnedXpDisplay, title }: any) {
+export function QuizResultScreen({ finalScore, pct, xp, saveError, router, setCurrent, setSelected, setConfirmed, setScore, setFinished, setSavedXp, setEarnedXpDisplay, title }: any) {
   return (
     <div className="p-8 flex items-center justify-center min-h-[80vh]">
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-10 text-center max-w-md w-full">

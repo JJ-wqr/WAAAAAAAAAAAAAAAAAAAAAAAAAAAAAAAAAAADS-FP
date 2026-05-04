@@ -1,16 +1,16 @@
 "use client";
-import Link from "next/link";
+
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   signInWithPopup,
   signInWithEmailAndPassword,
   getAdditionalUserInfo,
 } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { toast } from "sonner";
+import { auth, googleProvider, db } from "@/lib/firebase";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");

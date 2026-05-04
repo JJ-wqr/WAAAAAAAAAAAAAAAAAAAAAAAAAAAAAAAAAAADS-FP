@@ -1,9 +1,9 @@
 "use client";
+
 import { useState } from "react";
-import { RotateCcw, ThumbsUp, ThumbsDown, Zap, CheckCircle2 } from "lucide-react";
+import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
-import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { flashcardDecks } from "@/lib/flashcardData";
 import { getLangInfo } from "@/lib/languages";

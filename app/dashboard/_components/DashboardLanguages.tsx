@@ -1,4 +1,5 @@
 "use client";
+
 import { Globe } from "lucide-react";
 
 export function DashboardLanguagesCard({ displayLanguages }: { displayLanguages: Array<{ code: string; flag: string; name: string; xp: number; level: string; maxXp: number }> }) {

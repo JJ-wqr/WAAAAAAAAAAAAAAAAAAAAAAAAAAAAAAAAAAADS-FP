@@ -1,4 +1,5 @@
 "use client";
+
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 export function FlashcardActions({ flipped, handleKnow }: { flipped: boolean; handleKnow: (didKnow: boolean) => void }) {

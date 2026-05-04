@@ -1,12 +1,12 @@
 "use client";
-import Link from "next/link";
+
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { toast } from "sonner";
+import { auth, db } from "@/lib/firebase";
 
 export default function RegisterForm() {
   const [name, setName] = useState("");

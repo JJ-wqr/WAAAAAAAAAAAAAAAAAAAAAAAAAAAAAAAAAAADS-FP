@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
-import { getLangInfo } from "@/lib/languages";
 import { ChatHeader } from "./_components/ChatHeader";
 import { MessageBubble } from "./_components/MessageBubble";
 import { ChatInput } from "./_components/ChatInput";
@@ -21,7 +20,6 @@ const GREETINGS: Record<string, string> = {
 
 export default function ConversationPage() {
   const { lang } = useLang();
-  const langInfo = getLangInfo(lang);
 
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: GREETINGS[lang] ?? GREETINGS.en },

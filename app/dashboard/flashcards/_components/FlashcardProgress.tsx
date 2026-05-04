@@ -1,4 +1,5 @@
 "use client";
+
 import { ThumbsUp, ThumbsDown, Zap } from "lucide-react";
 
 export function FlashcardProgress({ index, total, known, unknown }: { index: number; total: number; known: number; unknown: number }) {

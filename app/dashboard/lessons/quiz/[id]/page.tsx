@@ -1,9 +1,10 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, ChevronRight, RotateCcw, Trophy } from "lucide-react";
-import { useAuth } from "@/components/authprovider";
 import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
+import { useAuth } from "@/components/authprovider";
 import { db } from "@/lib/firebase";
 import { lessonQuizzes } from "@/lib/lessonData";
 import { type LangCode, getLangInfo, progressKey } from "@/lib/languages";

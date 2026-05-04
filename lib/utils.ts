@@ -1,6 +1,5 @@
 import { arrayUnion, increment } from "firebase/firestore";
-import { progressKey } from "@/lib/languages";
-import type { LangCode } from "@/lib/languages";
+import { type LangCode, progressKey } from "@/lib/languages";
 
 export function timeAgo(isoString: string): string {
   const diff = Date.now() - new Date(isoString).getTime();

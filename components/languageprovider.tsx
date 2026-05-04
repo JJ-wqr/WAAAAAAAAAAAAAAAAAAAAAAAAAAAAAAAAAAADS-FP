@@ -1,6 +1,7 @@
 "use client";
+
 import { createContext, useContext, useEffect, useState } from "react";
-import { type LangCode } from "@/lib/languages";
+import type { LangCode } from "@/lib/languages";
 
 const LangContext = createContext<{
   lang: LangCode;

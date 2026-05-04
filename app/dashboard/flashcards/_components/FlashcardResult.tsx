@@ -1,4 +1,5 @@
 "use client";
+
 import { CheckCircle2, RotateCcw } from "lucide-react";
 
 export function FlashcardResult({ known, unknown, restart }: { known: number; unknown: number; restart: () => void }) {

@@ -2,7 +2,6 @@
 
 import { Crown, Medal, Trophy } from "lucide-react";
 
-
 // Renders medal/crown icon based on rank position
 function BadgeIcon({ rank }: { rank: number }) {
   if (rank === 1) return <Crown size={18} style={{ color: "#f59e0b" }} />;

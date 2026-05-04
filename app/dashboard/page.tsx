@@ -1,10 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { doc, onSnapshot, updateDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
 import { LANGUAGES } from "@/lib/languages";
-import { useEffect, useState } from "react";
-import { doc, onSnapshot, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { DashboardHeader } from "./_components/DashboardHeader";
 import { DashboardStatCards } from "./_components/DashboardStatCard";
