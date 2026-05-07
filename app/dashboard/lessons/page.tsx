@@ -1,20 +1,28 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Play, Lock, CheckCircle2, Clock, Star, ChevronRight, BookOpen } from "lucide-react";
+import { Play, Lock, CheckCircle2, Clock, Star, ChevronRight, BookOpen, Globe, Sun, Moon, Monitor } from "lucide-react";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
+import { useTheme } from "next-themes";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { unitData } from "@/lib/lessonData";
-import { progressKey } from "@/lib/languages";
+import { progressKey, LANGUAGES } from "@/lib/languages";
 
 const tabs = ["All", "In Progress", "Completed", "Locked"];
+
+const THEME_OPTIONS = [
+  { value: "light", icon: Sun, label: "Light" },
+  { value: "system", icon: Monitor, label: "Auto" },
+  { value: "dark", icon: Moon, label: "Dark" },
+];
 
 export default function LessonsPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { lang } = useLang();
+  const { lang, setLang } = useLang();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("All");
   const [lessonProgress, setLessonProgress] = useState<Record<string, string>>({});
   const [lessonScores, setLessonScores] = useState<Record<string, number>>({});
@@ -40,7 +48,6 @@ export default function LessonsPage() {
     const key = progressKey(lang, id);
     const val = lessonProgress[key];
     if (val) return val;
-    // Lesson 1 is always available for all languages
     if (id === 1) return "active";
     return "locked";
   };
@@ -61,6 +68,38 @@ export default function LessonsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-800">Lessons</h1>
         <p className="text-gray-500 text-sm mt-1">Continue your learning journey step by step.</p>
+      </div>
+
+      {/* Language + Theme Selector Bar */}
+      <div className="flex items-center gap-3 bg-white rounded-2xl px-5 py-3 shadow-sm border border-gray-100">
+        <Globe size={16} className="text-blue-500 shrink-0" />
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value as any)}
+          className="text-sm font-medium text-gray-700 bg-transparent border-none outline-none cursor-pointer"
+        >
+          {LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.flag} {l.name}
+            </option>
+          ))}
+        </select>
+        <div className="ml-auto flex items-center gap-1 p-1 rounded-xl bg-gray-100">
+          {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+            <button
+              key={value}
+              onClick={() => setTheme(value)}
+              title={label}
+              className={`flex items-center justify-center p-1.5 rounded-lg transition-all ${
+                theme === value
+                  ? "bg-white text-gray-800 shadow-sm"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              <Icon size={13} />
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Stats row */}

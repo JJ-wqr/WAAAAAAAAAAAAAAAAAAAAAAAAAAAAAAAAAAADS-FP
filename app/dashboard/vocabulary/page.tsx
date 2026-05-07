@@ -1,12 +1,19 @@
 "use client";
 import { useState } from "react";
-import { Search, Volume2, Star, BookOpen, TrendingUp } from "lucide-react";
+import { Search, Volume2, Star, BookOpen, TrendingUp, Globe, Sun, Moon, Monitor } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
+import { useTheme } from "next-themes";
 import SpeechButton from "@/components/SpeechButton";
 import { vocabularyData } from "@/lib/vocabularyData";
-import { getLangInfo } from "@/lib/languages";
+import { getLangInfo, LANGUAGES } from "@/lib/languages";
 
 const categories = ["All", "Nouns", "Verbs", "Adjectives"];
+
+const THEME_OPTIONS = [
+  { value: "light", icon: Sun, label: "Light" },
+  { value: "system", icon: Monitor, label: "Auto" },
+  { value: "dark", icon: Moon, label: "Dark" },
+];
 
 function masteryColor(m: number) {
   if (m >= 80) return "#34d399";
@@ -15,7 +22,8 @@ function masteryColor(m: number) {
 }
 
 export default function VocabularyPage() {
-  const { lang } = useLang();
+  const { lang, setLang } = useLang();
+  const { theme, setTheme } = useTheme();
   const words = vocabularyData[lang];
   const langInfo = getLangInfo(lang);
 
@@ -51,6 +59,38 @@ export default function VocabularyPage() {
         <p className="text-gray-500 text-sm mt-1">
           {langInfo.flag} {langInfo.name} — Track and review all the words you&apos;ve learned.
         </p>
+      </div>
+
+      {/* Language + Theme Selector Bar */}
+      <div className="flex items-center gap-3 bg-white rounded-2xl px-5 py-3 shadow-sm border border-gray-100">
+        <Globe size={16} className="text-blue-500 shrink-0" />
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value as any)}
+          className="text-sm font-medium text-gray-700 bg-transparent border-none outline-none cursor-pointer"
+        >
+          {LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.flag} {l.name}
+            </option>
+          ))}
+        </select>
+        <div className="ml-auto flex items-center gap-1 p-1 rounded-xl bg-gray-100">
+          {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+            <button
+              key={value}
+              onClick={() => setTheme(value)}
+              title={label}
+              className={`flex items-center justify-center p-1.5 rounded-lg transition-all ${
+                theme === value
+                  ? "bg-white text-gray-800 shadow-sm"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              <Icon size={13} />
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Stats */}
