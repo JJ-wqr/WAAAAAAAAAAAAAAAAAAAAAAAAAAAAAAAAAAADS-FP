@@ -62,7 +62,7 @@ export function LeaderboardRow({ u, rank, isMe }: { u: any; rank: number; isMe: 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className={`text-sm font-semibold ${isMe ? "text-blue-600" : "text-gray-700"}`}>
-            {u.name}{isMe ? " (You)" : ""}
+            {u.name}
           </p>
           {isMe && <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">You</span>}
         </div>

@@ -104,7 +104,7 @@ export default function LessonsPage() {
             <LessonUnitCard
               key={unit.unit}
               unit={unit}
-              filtered={filtered}
+              filteredLessons={filtered}
               getStatus={getStatus}
               getScore={getScore}
               handleStartLesson={handleStartLesson}

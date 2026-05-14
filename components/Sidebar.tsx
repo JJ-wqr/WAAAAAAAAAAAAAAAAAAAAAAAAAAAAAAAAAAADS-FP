@@ -42,7 +42,7 @@ export default function Sidebar() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <aside className="w-64 min-h-screen flex flex-col" style={{ background: "var(--bg-sidebar)" }}>
+    <aside className="fixed inset-y-0 left-0 w-64 flex flex-col" style={{ background: "var(--bg-sidebar)" }}>
       {/* Logo */}
       <div className="px-6 py-6 flex items-center gap-3 border-b border-white/10">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-lg" style={{ background: "#4a7cf7" }}>

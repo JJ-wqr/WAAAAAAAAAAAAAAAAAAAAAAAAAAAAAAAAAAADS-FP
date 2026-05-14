@@ -1,8 +1,20 @@
 "use client";
 
 import { LessonRow } from "./LessonRow";
+import type { LessonMeta, UnitData } from "@/lib/lessonData";
 
-export function LessonUnitCard({ unit, filteredLessons, getStatus, getScore, handleStartLesson }: any) {
+type LessonUnitCardProps = {
+  unit: UnitData;
+  filteredLessons?: LessonMeta[];
+  filtered?: LessonMeta[];
+  getStatus: (id: number) => string;
+  getScore: (id: number) => number | null;
+  handleStartLesson: (lessonId: number, isReview: boolean) => void;
+};
+
+export function LessonUnitCard({ unit, filteredLessons = [], filtered, getStatus, getScore, handleStartLesson }: LessonUnitCardProps) {
+  const lessons = filteredLessons.length ? filteredLessons : filtered ?? [];
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
@@ -15,7 +27,7 @@ export function LessonUnitCard({ unit, filteredLessons, getStatus, getScore, han
         </div>
       </div>
       <div className="divide-y divide-gray-50">
-        {filteredLessons.map((lesson: any) => (
+        {lessons.map((lesson) => (
           <LessonRow
             key={lesson.id}
             lesson={lesson}
