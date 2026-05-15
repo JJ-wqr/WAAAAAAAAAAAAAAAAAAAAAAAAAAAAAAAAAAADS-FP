@@ -6,7 +6,7 @@ export function ProfileHeader({ user, userData, displayLanguages, initials }: an
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <div className="flex items-start gap-6">
-        <div className="relative flex-shrink-0">
+        <div className="relative shrink-0">
           <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-bold"
             style={{ background: "linear-gradient(135deg, #4a7cf7, #7c3aed)" }}
@@ -32,7 +32,7 @@ export function ProfileHeader({ user, userData, displayLanguages, initials }: an
             { label: "Words", value: String(userData?.wordsLearned ?? 0), icon: BookOpen, color: "#34d399" },
             { label: "Lessons", value: String(userData?.lessonsCompleted ?? 0), icon: CheckCircle2, color: "#a78bfa" },
           ].map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="text-center bg-gray-50 rounded-xl p-3 min-w-[80px]">
+            <div key={label} className="text-center bg-gray-50 rounded-xl p-3 min-w-20">
               <Icon size={16} style={{ color }} className="mx-auto mb-1" />
               <p className="text-lg font-bold text-gray-800 leading-none">{value}</p>
               <p className="text-xs text-gray-400 mt-0.5">{label}</p>

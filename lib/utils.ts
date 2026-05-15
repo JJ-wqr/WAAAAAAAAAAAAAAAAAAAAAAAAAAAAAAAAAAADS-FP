@@ -25,6 +25,35 @@ export function calculateEarnedXp(score: number, total: number, baseXp: number) 
   return Math.round(baseXp * 0.5);
 }
 
+export function cn(...classes: Array<string | number | boolean | undefined | null | Record<string, boolean | undefined | null> | Array<string | number | boolean | undefined | null | Record<string, boolean | undefined | null>>>) {
+  return classes
+    .flat(Infinity)
+    .filter((value) => {
+      if (!value) return false;
+      if (typeof value === "string" || typeof value === "number") return true;
+      if (typeof value === "object" && value !== null) {
+        const obj = value as Record<string, boolean | undefined | null>;
+        return Object.keys(obj).some((key) => Boolean(obj[key]));
+      }
+      return false;
+    })
+    .map((value) => {
+      if (typeof value === "string" || typeof value === "number") {
+        return value;
+      }
+      if (typeof value === "object" && value !== null) {
+        const obj = value as Record<string, boolean | undefined | null>;
+        return Object.entries(obj)
+          .filter(([, enabled]) => Boolean(enabled))
+          .map(([key]) => key)
+          .join(" ");
+      }
+      return "";
+    })
+    .filter(Boolean)
+    .join(" ");
+}
+
 export function buildLessonSaveUpdates(
   earnedXp: number,
   pct: number,

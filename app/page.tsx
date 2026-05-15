@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import LoginForm from "@/app/_components/LoginForm";
+import { PublicShell } from "@/components/PublicShell";
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
-
   useEffect(() => {
-    if (searchParams.get("registered") === "1") {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("registered") === "1") {
       toast.success("Account created! You can now log in.");
     }
-  }, [searchParams]);
+  }, []);
 
-  return <LoginForm />;
+  return (
+    <PublicShell
+      title="Sign in and continue your language journey"
+      description="Access lessons, flashcards, conversation practice, and more with a clean, polished learning dashboard."
+    >
+      <LoginForm />
+    </PublicShell>
+  );
 }

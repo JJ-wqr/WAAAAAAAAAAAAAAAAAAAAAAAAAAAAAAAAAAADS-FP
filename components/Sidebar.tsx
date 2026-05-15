@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -16,6 +17,8 @@ import {
   Sun,
   Moon,
   Monitor,
+  Menu,
+  X,
 } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
 import { LANGUAGES } from "@/lib/languages";
@@ -40,88 +43,118 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { lang, setLang } = useLang();
   const { theme, setTheme } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-64 flex flex-col" style={{ background: "var(--bg-sidebar)" }}>
-      {/* Logo */}
-      <div className="px-6 py-6 flex items-center gap-3 border-b border-white/10">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-lg" style={{ background: "#4a7cf7" }}>
-          <Globe size={20} />
-        </div>
-        <span className="text-white font-bold text-xl tracking-tight">Linguiny</span>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-5 space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                active
-                  ? "text-white"
-                  : "text-blue-200/70 hover:text-white hover:bg-white/5"
-              }`}
-              style={active ? { background: "#4a7cf7" } : {}}
-            >
-              <Icon size={18} />
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Theme Toggle */}
-      <div className="px-3 pb-2">
-        <p className="text-xs text-blue-200/40 px-1 mb-1.5 font-medium">Theme</p>
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5">
-          {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
-            <button
-              key={value}
-              onClick={() => setTheme(value)}
-              title={label}
-              className={`flex-1 flex items-center justify-center py-2 rounded-lg transition-all ${
-                theme === value
-                  ? "bg-white/20 text-white"
-                  : "text-blue-200/50 hover:text-blue-200 hover:bg-white/10"
-              }`}
-            >
-              <Icon size={14} />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Language Selector */}
-      <div className="px-3 pb-2">
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5">
-          <Globe size={15} className="text-blue-300 shrink-0" />
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as any)}
-            className="flex-1 bg-transparent text-blue-200/90 text-xs font-medium border-none outline-none cursor-pointer"
-          >
-            {LANGUAGES.map((l) => (
-              <option key={l.code} value={l.code} className="text-gray-800 bg-white">
-                {l.flag} {l.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Logout */}
-      <div className="px-3 pb-6">
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-blue-200/70 hover:text-white hover:bg-white/5 transition-all"
+    <>
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 rounded-lg bg-blue-600 text-white shadow-lg"
+          aria-label="Toggle menu"
         >
-          <LogOut size={18} />
-          Logout
-        </Link>
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
-    </aside>
+
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={closeMobileMenu}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 w-64 flex flex-col transform transition-transform duration-300 ease-in-out z-50 ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+        style={{ background: "var(--bg-sidebar)" }}
+        role="navigation"
+        aria-label="Main navigation"
+      >
+        {/* Logo */}
+        <div className="px-6 py-6 flex items-center gap-3 border-b border-white/10">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-lg" style={{ background: "#4a7cf7" }}>
+            <Globe size={20} />
+          </div>
+          <span className="text-white font-bold text-xl tracking-tight">Linguiny</span>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-5 space-y-1" role="navigation">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const isRootDashboard = href === "/dashboard";
+            const active = isRootDashboard
+              ? pathname === href
+              : pathname === href || pathname?.startsWith(`${href}/`);
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  active
+                    ? "text-white"
+                    : "text-blue-200/70 hover:text-white hover:bg-white/5"
+                }`}
+                style={active ? { background: "#4a7cf7" } : {}}
+                aria-current={active ? "page" : undefined}
+              >
+                <Icon size={18} aria-hidden="true" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Theme Toggle */}
+        <div className="px-3 pb-2">
+          <p className="text-xs text-blue-200/40 px-1 mb-1.5 font-medium">Theme</p>
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5">
+            {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+              <button
+                key={value}
+                onClick={() => setTheme(value)}
+                title={label}
+                className={`flex-1 flex items-center justify-center py-2 rounded-lg transition-all ${
+                  theme === value
+                    ? "bg-white/20 text-white"
+                    : "text-blue-200/50 hover:text-blue-200 hover:bg-white/10"
+                }`}
+                aria-label={`Switch to ${label.toLowerCase()} theme`}
+                aria-pressed={theme === value}
+              >
+                <Icon size={14} aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Language Selector */}
+        <div className="px-3 pb-2">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5">
+            <Globe size={15} className="text-blue-300 shrink-0" aria-hidden="true" />
+            <select
+              className="text-sm font-medium text-gray-700 bg-transparent border-none outline-none cursor-pointer"
+              value={lang}
+              onChange={(e) => setLang(e.target.value as import("@/lib/languages").LangCode)}
+              aria-label="Select language"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.flag} {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }

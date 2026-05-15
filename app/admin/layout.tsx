@@ -4,7 +4,7 @@ import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { Footer } from "@/components/Footer";
 import { TopNav } from "@/components/TopNav";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <LanguageProvider>
       <div className="min-h-screen flex flex-col bg-[var(--bg-page)]">
@@ -14,9 +14,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <main className="flex-1 overflow-y-auto">
             <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">{children}</div>
           </main>
+          <Footer />
+          <ScrollToTopButton />
         </div>
-        <Footer />
-        <ScrollToTopButton />
       </div>
     </LanguageProvider>
   );

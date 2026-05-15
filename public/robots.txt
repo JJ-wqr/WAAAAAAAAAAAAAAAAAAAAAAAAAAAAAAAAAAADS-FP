@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Block access to API routes (optional, for security)
+Disallow: /api/
+
+# Block access to admin areas (if implemented)
+Disallow: /admin/
+
+# Allow access to sitemap
+Sitemap: https://linguiny.com/sitemap.xml
