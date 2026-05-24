@@ -1,9 +1,9 @@
 "use client";
 
 import { RefreshCw, Bot } from "lucide-react";
-import { getLangInfo } from "@/lib/languages";
+import { getLangInfo, type LangCode } from "@/lib/languages";
 
-export function ChatHeader({ lang, onReset }: { lang: string; onReset: () => void }) {
+export function ChatHeader({ lang, onReset }: { lang: LangCode; onReset: () => void }) {
   const langInfo = getLangInfo(lang);
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-4 mb-4 flex items-center justify-between">

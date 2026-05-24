@@ -1,23 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { CheckCircle2, XCircle, ChevronRight, RotateCcw, Trophy } from "lucide-react";
 import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
 import { useAuth } from "@/components/authprovider";
 import { db } from "@/lib/firebase";
 import { lessonQuizzes } from "@/lib/lessonData";
 import { type LangCode, getLangInfo, progressKey } from "@/lib/languages";
+import { notifyUserIfEnabled } from "@/lib/notifications";
 
 const SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function QuizPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isReview = searchParams.get("review") === "1";
-  const lang = (searchParams.get("lang") ?? "ja") as LangCode;
+  const [isReview, setIsReview] = useState(false);
+  const [lang, setLang] = useState<LangCode>("ja");
   const { user } = useAuth();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    setIsReview(searchParams.get("review") === "1");
+    setLang((searchParams.get("lang") ?? "ja") as LangCode);
+  }, []);
 
   const langQuizzes = lessonQuizzes[lang] ?? lessonQuizzes["ja"];
   const quiz = langQuizzes[id] ?? langQuizzes["1"];
@@ -108,8 +114,25 @@ export default function QuizPage() {
         const updates = buildUpdates(earnedXp, pct);
 
         if (user) {
+          const notificationItem = {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            title: "Lesson complete!",
+            body: `You earned +${earnedXp} XP for ${title} in ${langInfo.name}.`,
+            time: new Date().toISOString(),
+            read: false,
+            xp: `+${earnedXp} XP`,
+            lang: `${langInfo.flag} ${langInfo.name}`,
+          };
+          updates["notifications.items"] = arrayUnion(notificationItem);
+
           // Fire-and-forget Firestore save
           executeSave(user.uid, updates);
+
+          notifyUserIfEnabled(
+            user.uid,
+            notificationItem.title,
+            notificationItem.body
+          );
 
           // Fire-and-forget Prisma save
           fetch("/api/quiz/attempt", {

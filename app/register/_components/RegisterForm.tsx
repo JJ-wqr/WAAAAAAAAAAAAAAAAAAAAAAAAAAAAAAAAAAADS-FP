@@ -37,6 +37,7 @@ export default function RegisterForm() {
         lessonProgress: { "1": "active", "en_1": "active", "es_1": "active", "fr_1": "active" },
         lessonScores: {},
         languageXp: { ja: 0, en: 0, es: 0, fr: 0 },
+        notifications: { enabled: false, items: [] },
         recentActivity: [],
       }).catch(console.error);
 

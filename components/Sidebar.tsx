@@ -13,6 +13,7 @@ import {
   LogOut,
   Globe,
   MessageCircle,
+  Bell,
   Sun,
   Moon,
   Monitor,
@@ -27,6 +28,7 @@ const navItems = [
   { href: "/dashboard/flashcards", label: "Flashcards", icon: FlipHorizontal2 },
   { href: "/dashboard/conversation", label: "Conversation", icon: MessageCircle },
   { href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/profile", label: "Profile", icon: User },
 ];
 

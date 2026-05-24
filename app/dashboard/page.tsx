@@ -16,9 +16,10 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { lang: selectedLangCode, setLang: setSelectedLangCode } = useLang();
   const [userData, setUserData] = useState<any>(null);
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -40,6 +41,8 @@ export default function DashboardPage() {
         if (!data.recentActivity) missing.recentActivity = [];
         if (!data.lessonProgress) missing.lessonProgress = { "1": "active" };
         if (!data.lessonScores) missing.lessonScores = {};
+        if (!data.notifications) missing.notifications = { enabled: false, items: [] };
+        if (data.notifications && !data.notifications.items) missing.notifications = { enabled: data.notifications.enabled ?? false, items: [] };
         if (Object.keys(missing).length > 0) updateDoc(docRef, missing);
         setUserData(data);
       } else {
@@ -56,6 +59,7 @@ export default function DashboardPage() {
           lessonProgress: { "1": "active", "en_1": "active", "es_1": "active", "fr_1": "active" },
           lessonScores: {},
           languageXp: { ja: 0, en: 0, es: 0, fr: 0 },
+          notifications: { enabled: false, items: [] },
           recentActivity: [],
         }).catch(console.error);
       }

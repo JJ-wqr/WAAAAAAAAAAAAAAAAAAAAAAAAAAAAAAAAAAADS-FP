@@ -7,6 +7,7 @@ import { useLang } from "@/components/languageprovider";
 import { db } from "@/lib/firebase";
 import { flashcardDecks } from "@/lib/flashcardData";
 import { getLangInfo } from "@/lib/languages";
+import { notifyUserIfEnabled } from "@/lib/notifications";
 import { FlashcardProgress } from "./_components/FlashcardProgress";
 import { FlashcardCard } from "./_components/FlashcardCard";
 import { FlashcardActions } from "./_components/FlashcardActions";
@@ -35,6 +36,15 @@ export default function FlashcardsPage() {
     if (index + 1 >= total) {
       setDone(true);
       if (user) {
+        const notificationItem = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          title: "Flashcards complete!",
+          body: `You earned +${SESSION_XP} XP in ${langInfo.name}.`,
+          time: new Date().toISOString(),
+          read: false,
+          xp: `+${SESSION_XP} XP`,
+          lang: `${langInfo.flag} ${langInfo.name}`,
+        };
         const docRef = doc(db, "users", user.uid);
         updateDoc(docRef, {
           xp: increment(SESSION_XP),
@@ -46,7 +56,14 @@ export default function FlashcardsPage() {
             time: new Date().toISOString(),
             xp: `+${SESSION_XP} XP`,
           }),
+          "notifications.items": arrayUnion(notificationItem),
         });
+
+        notifyUserIfEnabled(
+          user.uid,
+          notificationItem.title,
+          notificationItem.body
+        );
       }
     } else {
       setIndex(index + 1);

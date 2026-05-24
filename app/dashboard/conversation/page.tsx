@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Bot } from "lucide-react";
 import { useLang } from "@/components/languageprovider";
 import { ChatHeader } from "./_components/ChatHeader";
 import { MessageBubble } from "./_components/MessageBubble";

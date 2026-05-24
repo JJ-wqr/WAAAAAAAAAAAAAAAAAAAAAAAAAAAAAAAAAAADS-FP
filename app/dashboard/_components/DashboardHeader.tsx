@@ -5,18 +5,25 @@ import { LANGUAGES, type LangCode } from "@/lib/languages";
 
 export function DashboardHeader({ user, now, selectedLangCode, setSelectedLangCode }: {
   user: any;
-  now: Date;
+  now: Date | null;
   selectedLangCode: LangCode;
   setSelectedLangCode: (lang: LangCode) => void;
 }) {
+  const dateText = now
+    ? now.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })
+    : "Loading date";
+  const timeText = now
+    ? now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+    : "...";
+
   return (
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-2xl font-bold text-gray-800">Good morning, {user?.displayName ?? "User"} 👋</h1>
         <p className="text-gray-500 text-sm mt-1">
-          {now.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          {dateText}
           {" · "}
-          {now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+          {timeText}
         </p>
       </div>
       <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-2 shadow-sm border border-gray-100">

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Globe, Bell, Shield, Palette } from "lucide-react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/components/authprovider";
@@ -12,6 +11,7 @@ import { ProfileHeader } from "./_components/ProfileHeader";
 import { AchievementCard } from "./_components/AchievementCard";
 import { ProfileStats } from "./_components/ProfileStats";
 import { SettingsSection } from "./_components/SettingsSection";
+import { LANGUAGES } from "@/lib/languages";
 
 const achievements = [
   { icon: "🔥", title: "Week Warrior", desc: "7-day streak", key: "streak", threshold: 7 },
@@ -22,30 +22,24 @@ const achievements = [
   { icon: "👑", title: "Top Learner", desc: "Reach #1 leaderboard", key: null, threshold: null },
 ];
 
-const settingsSections = [
-  {
-    title: "Account",
-    items: [
-      { icon: User, label: "Edit Profile" },
-      { icon: Mail, label: "Change Email" },
-      { icon: Shield, label: "Change Password" },
-    ],
-  },
-  {
-    title: "Preferences",
-    items: [
-      { icon: Globe, label: "Interface Language" },
-      { icon: Bell, label: "Notifications" },
-      { icon: Palette, label: "Theme" },
-    ],
-  },
-];
+
+type UserData = {
+  name?: string;
+  streak?: number;
+  xp?: number;
+  wordsLearned?: number;
+  lessonsCompleted?: number;
+  languages?: Array<{ flag: string; name: string; level: string; xp: number }>;
+  languageXp?: Record<string, number>;
+  notifications?: { enabled: boolean };
+  [key: string]: unknown;
+};
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"stats" | "achievements" | "settings">("stats");
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -55,12 +49,12 @@ export default function ProfilePage() {
     return () => unsub();
   }, [user]);
 
-  const displayLanguages: { flag: string; name: string; level: string; xp: number }[] =
-    userData?.languages ?? [
-      { flag: "🇯🇵", name: "Japanese", level: "Beginner", xp: 0 },
-      { flag: "🇪🇸", name: "Spanish", level: "Beginner", xp: 0 },
-      { flag: "🇫🇷", name: "French", level: "Beginner", xp: 0 },
-    ];
+  const langXp: Record<string, number> = userData?.languageXp ?? {};
+  const displayLanguages = LANGUAGES.map((l) => {
+    const xp = langXp[l.code] ?? 0;
+    const level = xp >= 800 ? "Advanced" : xp >= 400 ? "Intermediate" : "Beginner";
+    return { ...l, xp, level };
+  });
 
   const initials = (user?.displayName ?? user?.email ?? "?")
     .split(" ")
@@ -118,7 +112,7 @@ export default function ProfilePage() {
               icon={achievement.icon}
               title={achievement.title}
               desc={achievement.desc}
-              earned={achievement.key && achievement.threshold ? (userData?.[achievement.key] ?? 0) >= achievement.threshold : false}/>
+              earned={achievement.key && achievement.threshold ? Number(userData?.[achievement.key] ?? 0) >= achievement.threshold : false}/>
           ))}
         </div>
       )}
@@ -126,7 +120,8 @@ export default function ProfilePage() {
       {/* Settings Tab */}
       {activeTab === "settings" && (
         <SettingsSection
-          settingsSections={settingsSections}
+          userId={user?.uid}
+          notifications={userData?.notifications}
           handleLogout={handleLogout}
         />
       )}
