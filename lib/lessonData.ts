@@ -134,6 +134,33 @@ export const unitData: Record<LangCode, UnitData[]> = {
       ],
     },
   ],
+  id: [
+    {
+      unit: 1, title: "Dasar & Salam",
+      lessons: [
+        { id: 1, title: "Hello & Goodbye", duration: "5 min", xp: 10 },
+        { id: 2, title: "Introductions", duration: "8 min", xp: 15 },
+        { id: 3, title: "Numbers 1–10", duration: "6 min", xp: 10 },
+        { id: 4, title: "Colors & Shapes", duration: "10 min", xp: 20 },
+      ],
+    },
+    {
+      unit: 2, title: "Kehidupan Sehari-hari",
+      lessons: [
+        { id: 5, title: "Food & Drinks", duration: "12 min", xp: 20 },
+        { id: 6, title: "At the Market", duration: "10 min", xp: 20 },
+        { id: 7, title: "Time & Days", duration: "8 min", xp: 15 },
+      ],
+    },
+    {
+      unit: 3, title: "Dasar Tata Bahasa",
+      lessons: [
+        { id: 8, title: "Present Tense", duration: "15 min", xp: 25 },
+        { id: 9, title: "Past Tense", duration: "18 min", xp: 30 },
+        { id: 10, title: "Question Forms", duration: "12 min", xp: 25 },
+      ],
+    },
+  ],
 };
 
 export const lessonQuizzes: Record<LangCode, Record<string, LessonQuiz>> = {
@@ -545,6 +572,109 @@ export const lessonQuizzes: Record<LangCode, Record<string, LessonQuiz>> = {
         { question: "What does 'Quand?' mean?", options: ["Who", "Where", "When", "What"], answer: 2 },
         { question: "How do you ask 'Why?' in French?", options: ["Quoi?", "Où?", "Pourquoi?", "Comment?"], answer: 2 },
         { question: "How do you ask 'How?' in French?", options: ["Quoi?", "Quand?", "Pourquoi?", "Comment?"], answer: 3 },
+      ],
+    },
+  },
+
+  id: {
+    "1": {
+      title: "Hello & Goodbye", xp: 10,
+      questions: [
+        { question: "How do you say 'Hello' in Indonesian?", options: ["Selamat tinggal", "Terima kasih", "Halo", "Permisi"], answer: 2 },
+        { question: "What does 'Selamat tinggal' mean?", options: ["Hello", "Thank you", "Goodbye", "Please"], answer: 2 },
+        { question: "How do you say 'Good morning' in Indonesian?", options: ["Selamat malam", "Selamat siang", "Selamat pagi", "Sampai jumpa"], answer: 2 },
+        { question: "What does 'Sampai jumpa' mean?", options: ["Good morning", "Hello", "Good night", "See you later"], answer: 3 },
+        { question: "How do you greet someone in the evening?", options: ["Selamat pagi", "Halo", "Selamat pagi", "Selamat malam"], answer: 3 },
+      ],
+    },
+    "2": {
+      title: "Introductions", xp: 15,
+      questions: [
+        { question: "How do you say 'My name is...' in Indonesian?", options: ["Saya dari...", "Nama saya...", "Saya punya...", "Saya tinggal di..."], answer: 1 },
+        { question: "What does 'Siapa nama Anda?' mean?", options: ["Where are you from?", "How old are you?", "What is your name?", "How are you?"], answer: 2 },
+        { question: "How do you say 'Nice to meet you' in Indonesian?", options: ["Maaf", "Sampai jumpa", "Senang bertemu Anda", "Sama-sama"], answer: 2 },
+        { question: "How do you ask 'How are you?' in Indonesian?", options: ["Apa kabar?", "Di mana Anda?", "Siapa Anda?", "Apa yang Anda lakukan?"], answer: 0 },
+        { question: "How do you say 'I am a student' in Indonesian?", options: ["Saya guru", "Saya pelajar", "Saya punya pekerjaan", "Saya tinggal di sekolah"], answer: 1 },
+      ],
+    },
+    "3": {
+      title: "Numbers 1–10", xp: 10,
+      questions: [
+        { question: "What is 'tiga' in English?", options: ["1", "2", "3", "4"], answer: 2 },
+        { question: "How do you say '7' in Indonesian?", options: ["enam", "tujuh", "delapan", "sembilan"], answer: 1 },
+        { question: "What is 'sepuluh' in English?", options: ["8", "9", "10", "6"], answer: 2 },
+        { question: "How do you say '2' in Indonesian?", options: ["satu", "dua", "tiga", "empat"], answer: 1 },
+        { question: "What does 'lima' mean?", options: ["3", "4", "5", "6"], answer: 2 },
+      ],
+    },
+    "4": {
+      title: "Colors & Shapes", xp: 20,
+      questions: [
+        { question: "What is 'merah' in English?", options: ["Blue", "Red", "Green", "Yellow"], answer: 1 },
+        { question: "How do you say 'circle' in Indonesian?", options: ["persegi", "segitiga", "lingkaran", "bintang"], answer: 2 },
+        { question: "What color is 'biru'?", options: ["Red", "White", "Black", "Blue"], answer: 3 },
+        { question: "What is 'kuning' in English?", options: ["Pink", "Purple", "Yellow", "Orange"], answer: 2 },
+        { question: "How do you say 'triangle' in Indonesian?", options: ["lingkaran", "segitiga", "persegi", "persegi panjang"], answer: 1 },
+      ],
+    },
+    "5": {
+      title: "Food & Drinks", xp: 20,
+      questions: [
+        { question: "What is 'nasi' in English?", options: ["Bread", "Rice", "Noodles", "Soup"], answer: 1 },
+        { question: "How do you say 'water' in Indonesian?", options: ["susu", "kopi", "teh", "air"], answer: 3 },
+        { question: "What is 'roti' in English?", options: ["Cake", "Cookie", "Bread", "Rice"], answer: 2 },
+        { question: "How do you say 'delicious' in Indonesian?", options: ["tidak enak", "enak", "pedas", "manis"], answer: 1 },
+        { question: "What is 'susu' in English?", options: ["Juice", "Tea", "Water", "Milk"], answer: 3 },
+      ],
+    },
+    "6": {
+      title: "At the Market", xp: 20,
+      questions: [
+        { question: "How do you say 'How much is this?' in Indonesian?", options: ["Apa ini?", "Berapa harganya?", "Saya mau ini", "Di mana ini?"], answer: 1 },
+        { question: "What does 'murah' mean?", options: ["Expensive", "Cheap", "Free", "Sold out"], answer: 1 },
+        { question: "How do you say 'I'll take this' in Indonesian?", options: ["Saya tidak mau", "Berapa harganya?", "Saya ambil ini", "Terima kasih"], answer: 2 },
+        { question: "What is 'mahal' in English?", options: ["Cheap", "Big", "Expensive", "Small"], answer: 2 },
+        { question: "How do you say 'Do you have...?' in Indonesian?", options: ["Apakah ada...?", "Apakah Anda mau...?", "Di mana...?", "Berapa...?"], answer: 0 },
+      ],
+    },
+    "7": {
+      title: "Time & Days", xp: 15,
+      questions: [
+        { question: "How do you say 'Monday' in Indonesian?", options: ["Selasa", "Rabu", "Senin", "Kamis"], answer: 2 },
+        { question: "What does 'hari ini' mean?", options: ["Yesterday", "Tomorrow", "Today", "This week"], answer: 2 },
+        { question: "How do you say '3 o'clock' in Indonesian?", options: ["jam tiga", "tiga menit", "hari ketiga", "tiga kali"], answer: 0 },
+        { question: "What is 'besok' in English?", options: ["Today", "Yesterday", "Tomorrow", "Next week"], answer: 2 },
+        { question: "How do you say 'Sunday' in Indonesian?", options: ["Sabtu", "Jumat", "Minggu", "Senin"], answer: 2 },
+      ],
+    },
+    "8": {
+      title: "Present Tense", xp: 25,
+      questions: [
+        { question: "How do you say 'I eat rice' in Indonesian?", options: ["Saya sudah makan nasi", "Saya makan nasi", "Saya akan makan nasi", "Saya sedang makan nasi kemarin"], answer: 1 },
+        { question: "What does 'sedang' indicate in a sentence?", options: ["Past action", "Future plan", "An action happening right now", "A habit"], answer: 2 },
+        { question: "How do you say 'She goes to school' in Indonesian?", options: ["Dia pergi ke sekolah kemarin", "Dia pergi ke sekolah", "Dia akan pergi ke sekolah", "Dia sudah pergi ke sekolah"], answer: 1 },
+        { question: "Which word shows something is happening right now?", options: ["sudah", "akan", "sedang", "pernah"], answer: 2 },
+        { question: "How do you say 'I am reading a book' in Indonesian?", options: ["Saya membaca buku", "Saya sedang membaca buku", "Saya sudah membaca buku", "Saya akan membaca buku"], answer: 1 },
+      ],
+    },
+    "9": {
+      title: "Past Tense", xp: 30,
+      questions: [
+        { question: "Which word marks a completed action in Indonesian?", options: ["akan", "sedang", "sudah", "mau"], answer: 2 },
+        { question: "How do you say 'I have eaten' in Indonesian?", options: ["Saya makan", "Saya akan makan", "Saya sudah makan", "Saya sedang makan"], answer: 2 },
+        { question: "What does 'kemarin' mean?", options: ["Tomorrow", "Today", "Yesterday", "Last week"], answer: 2 },
+        { question: "How do you say 'She went to Bali' in Indonesian?", options: ["Dia pergi ke Bali", "Dia sudah pergi ke Bali", "Dia akan pergi ke Bali", "Dia sedang pergi ke Bali"], answer: 1 },
+        { question: "What does 'telah' indicate?", options: ["Future tense", "A completed / past action", "Present ongoing", "A question"], answer: 1 },
+      ],
+    },
+    "10": {
+      title: "Question Forms", xp: 25,
+      questions: [
+        { question: "How do you form a yes/no question in Indonesian?", options: ["Add 'ya' at the start", "Add 'apakah' at the start or raise intonation", "Add '-kah' at the end always", "Change word order"], answer: 1 },
+        { question: "How do you say 'Where is it?' in Indonesian?", options: ["Apa itu?", "Di mana itu?", "Siapa itu?", "Kapan itu?"], answer: 1 },
+        { question: "What does 'Kapan?' mean?", options: ["Who", "Where", "When", "What"], answer: 2 },
+        { question: "How do you ask 'Why?' in Indonesian?", options: ["Apa?", "Di mana?", "Mengapa?", "Bagaimana?"], answer: 2 },
+        { question: "How do you ask 'How?' in Indonesian?", options: ["Apa?", "Kapan?", "Mengapa?", "Bagaimana?"], answer: 3 },
       ],
     },
   },

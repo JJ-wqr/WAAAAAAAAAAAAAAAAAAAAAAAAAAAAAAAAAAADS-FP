@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Globe, Bell, Shield, Palette } from "lucide-react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/components/authprovider";
@@ -22,24 +21,6 @@ const achievements = [
   { icon: "👑", title: "Top Learner", desc: "Reach #1 leaderboard", key: null, threshold: null },
 ];
 
-const settingsSections = [
-  {
-    title: "Account",
-    items: [
-      { icon: User, label: "Edit Profile" },
-      { icon: Mail, label: "Change Email" },
-      { icon: Shield, label: "Change Password" },
-    ],
-  },
-  {
-    title: "Preferences",
-    items: [
-      { icon: Globe, label: "Interface Language" },
-      { icon: Bell, label: "Notifications" },
-      { icon: Palette, label: "Theme" },
-    ],
-  },
-];
 
 export default function ProfilePage() {
   const { user } = useAuth();

@@ -40,4 +40,12 @@ export const flashcardDecks: Record<LangCode, Flashcard[]> = {
     { front: "maison", hint: "meh-ZOHN", back: "house / home", example: "Ma maison est grande.\n(My house is big.)" },
     { front: "travail", hint: "trah-VYE", back: "work / job", example: "J'aime beaucoup mon travail.\n(I love my work very much.)" },
   ],
+  id: [
+    { front: "makan", hint: "mah-KAN", back: "to eat", example: "Saya makan nasi setiap hari.\n(I eat rice every day.)" },
+    { front: "minum", hint: "mee-NOOM", back: "to drink", example: "Saya minum air putih.\n(I drink water.)" },
+    { front: "sekolah", hint: "se-KO-lah", back: "school", example: "Saya pergi ke sekolah.\n(I go to school.)" },
+    { front: "kereta", hint: "ke-REH-ta", back: "train", example: "Saya naik kereta ke kantor.\n(I take the train to the office.)" },
+    { front: "teman", hint: "teh-MAN", back: "friend", example: "Teman saya bernama Budi.\n(My friend's name is Budi.)" },
+    { front: "pekerjaan", hint: "pe-ker-JAH-an", back: "work / job", example: "Saya suka pekerjaan saya.\n(I like my job.)" },
+  ],
 };

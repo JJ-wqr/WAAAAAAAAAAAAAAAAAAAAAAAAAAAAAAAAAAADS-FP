@@ -1,4 +1,4 @@
-export type LangCode = "ja" | "en" | "es" | "fr";
+export type LangCode = "ja" | "en" | "es" | "fr" | "id";
 
 export type LangInfo = { code: LangCode; flag: string; name: string };
 
@@ -7,6 +7,7 @@ export const LANGUAGES: LangInfo[] = [
   { code: "en", flag: "🇬🇧", name: "English" },
   { code: "es", flag: "🇪🇸", name: "Spanish" },
   { code: "fr", flag: "🇫🇷", name: "French" },
+  { code: "id", flag: "🇮🇩", name: "Indonesian" },
 ];
 
 export function getLangInfo(code: LangCode) {

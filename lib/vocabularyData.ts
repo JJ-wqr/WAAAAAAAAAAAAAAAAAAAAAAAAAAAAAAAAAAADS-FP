@@ -66,4 +66,18 @@ export const vocabularyData: Record<LangCode, VocabWord[]> = {
     { word: "difficile", romaji: "dee-fee-SEEL", meaning: "difficult", category: "Adjectives", mastery: 30, known: false },
     { word: "sympathique", romaji: "san-pah-TEEK", meaning: "friendly / nice", category: "Adjectives", mastery: 60, known: true },
   ],
+  id: [
+    { word: "makan", romaji: "mah-KAN", meaning: "to eat", category: "Verbs", mastery: 90, known: true },
+    { word: "minum", romaji: "mee-NOOM", meaning: "to drink", category: "Verbs", mastery: 80, known: true },
+    { word: "berlari", romaji: "ber-LAH-ree", meaning: "to run", category: "Verbs", mastery: 45, known: false },
+    { word: "membaca", romaji: "mem-BAH-ca", meaning: "to read", category: "Verbs", mastery: 60, known: true },
+    { word: "lupa", romaji: "LOO-pa", meaning: "to forget", category: "Verbs", mastery: 30, known: false },
+    { word: "sekolah", romaji: "se-KO-lah", meaning: "school", category: "Nouns", mastery: 95, known: true },
+    { word: "kereta", romaji: "ke-REH-ta", meaning: "train", category: "Nouns", mastery: 70, known: true },
+    { word: "teman", romaji: "teh-MAN", meaning: "friend", category: "Nouns", mastery: 100, known: true },
+    { word: "pekerjaan", romaji: "pe-ker-JAH-an", meaning: "work / job", category: "Nouns", mastery: 75, known: true },
+    { word: "indah", romaji: "IN-dah", meaning: "beautiful", category: "Adjectives", mastery: 70, known: true },
+    { word: "sulit", romaji: "SOO-lit", meaning: "difficult", category: "Adjectives", mastery: 35, known: false },
+    { word: "ramah", romaji: "RAH-mah", meaning: "friendly / welcoming", category: "Adjectives", mastery: 55, known: false },
+  ],
 };

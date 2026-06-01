@@ -1,6 +1,6 @@
 "use client";
 
-import { User, Mail, Shield, Globe, Bell, Palette, ChevronRight } from "lucide-react";
+import { User, Mail, Shield, ChevronRight } from "lucide-react";
 
 const settingsSections = [
   {
@@ -9,14 +9,6 @@ const settingsSections = [
       { icon: User, label: "Edit Profile" },
       { icon: Mail, label: "Change Email" },
       { icon: Shield, label: "Change Password" },
-    ],
-  },
-  {
-    title: "Preferences",
-    items: [
-      { icon: Globe, label: "Interface Language" },
-      { icon: Bell, label: "Notifications" },
-      { icon: Palette, label: "Theme" },
     ],
   },
 ];
