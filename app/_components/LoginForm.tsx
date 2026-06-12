@@ -33,7 +33,6 @@ export default function LoginForm() {
           lessonsCompleted: 0,
           wordsLearned: 0,
           createdAt: new Date(),
-          skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
           dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
           lessonProgress: { "1": "active", "en_1": "active", "es_1": "active", "fr_1": "active" },
           lessonScores: {},

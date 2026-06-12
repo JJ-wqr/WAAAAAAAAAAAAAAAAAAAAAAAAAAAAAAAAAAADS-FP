@@ -25,6 +25,22 @@ export interface UnitData {
   lessons: LessonMeta[];
 }
 
+export type SkillCategory = "reading" | "writing" | "listening" | "speaking";
+
+/** Primary skill category trained by each lesson (id 1-10, shared across languages). */
+export const LESSON_SKILLS: Record<number, SkillCategory> = {
+  1: "speaking",
+  2: "speaking",
+  3: "listening",
+  4: "reading",
+  5: "reading",
+  6: "listening",
+  7: "listening",
+  8: "writing",
+  9: "writing",
+  10: "writing",
+};
+
 export const unitData: Record<LangCode, UnitData[]> = {
   ja: [
     {

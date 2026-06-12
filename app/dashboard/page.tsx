@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { doc, onSnapshot, updateDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
-import { LANGUAGES } from "@/lib/languages";
+import { LANGUAGES, progressKey } from "@/lib/languages";
+import { LESSON_SKILLS, type SkillCategory } from "@/lib/lessonData";
 import { db } from "@/lib/firebase";
 import { DashboardHeader } from "./_components/DashboardHeader";
 import { DashboardStatCards } from "./_components/DashboardStatCard";
@@ -30,7 +31,6 @@ export default function DashboardPage() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         const missing: Record<string, unknown> = {};
-        if (!data.skills) missing.skills = { reading: 0, writing: 0, listening: 0, speaking: 0 };
         if (!data.dailyGoals) missing.dailyGoals = {
           completedLesson: false,
           reviewedFlashcards: false,
@@ -51,7 +51,6 @@ export default function DashboardPage() {
           lessonsCompleted: 0,
           wordsLearned: 0,
           createdAt: new Date(),
-          skills: { reading: 0, writing: 0, listening: 0, speaking: 0 },
           dailyGoals: { completedLesson: false, reviewedFlashcards: false, learnedWords: false, listeningPractice: false },
           lessonProgress: { "1": "active", "en_1": "active", "es_1": "active", "fr_1": "active" },
           lessonScores: {},
@@ -63,11 +62,29 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [user]);
 
+  const lessonScores: Record<string, number> = userData?.lessonScores ?? {};
+  const skillTotals: Record<SkillCategory, { sum: number; count: number }> = {
+    reading: { sum: 0, count: 0 },
+    writing: { sum: 0, count: 0 },
+    listening: { sum: 0, count: 0 },
+    speaking: { sum: 0, count: 0 },
+  };
+  for (const [id, category] of Object.entries(LESSON_SKILLS)) {
+    const score = lessonScores[progressKey(selectedLangCode, id)];
+    if (score === undefined) continue;
+    skillTotals[category].sum += score;
+    skillTotals[category].count += 1;
+  }
+  const skillValue = (category: SkillCategory) => {
+    const { sum, count } = skillTotals[category];
+    return count > 0 ? Math.round(sum / count) : 0;
+  };
+
   const displaySkills = [
-    { name: "Reading", value: userData?.skills?.reading ?? 0, color: "#4a7cf7" },
-    { name: "Writing", value: userData?.skills?.writing ?? 0, color: "#a78bfa" },
-    { name: "Listening", value: userData?.skills?.listening ?? 0, color: "#34d399" },
-    { name: "Speaking", value: userData?.skills?.speaking ?? 0, color: "#f59e0b" },
+    { name: "Reading", value: skillValue("reading"), color: "#4a7cf7" },
+    { name: "Writing", value: skillValue("writing"), color: "#a78bfa" },
+    { name: "Listening", value: skillValue("listening"), color: "#34d399" },
+    { name: "Speaking", value: skillValue("speaking"), color: "#f59e0b" },
   ];
 
   const displayDailyGoals = [
