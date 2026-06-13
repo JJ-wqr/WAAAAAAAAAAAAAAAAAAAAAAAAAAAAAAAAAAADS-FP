@@ -12,7 +12,7 @@ export function DashboardHeader({ user, now, selectedLangCode, setSelectedLangCo
   return (
     <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Good morning, {user?.displayName ?? "User"} 👋</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Good day, {user?.displayName ?? "User"} 👋</h1>
         <p className="text-gray-500 text-sm mt-1">
           {now.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           {" · "}

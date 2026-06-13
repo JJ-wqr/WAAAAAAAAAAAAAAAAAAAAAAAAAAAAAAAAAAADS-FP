@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Globe } from "lucide-react";
 import { Footer } from "@/components/Footer";
 
 interface PublicShellProps {
@@ -17,11 +16,9 @@ export function PublicShell({ title, description, children }: PublicShellProps) 
         <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-r from-sky-500 to-blue-600 opacity-40 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <Link href="/" className="inline-flex items-center gap-3 text-xl font-semibold text-slate-900 dark:text-white">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
-                <Globe size={18} />
-              </span>
-              Linguiny
+            <Link href="/" className="inline-flex items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-white.png" alt="Linguiny" className="h-11 w-auto rounded-2xl shadow-lg" />
             </Link>
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/" className="text-sm font-medium text-slate-700 hover:text-blue-700 transition">

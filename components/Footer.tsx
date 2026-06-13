@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Globe, Mail, Github, Twitter } from "lucide-react";
+import { Mail, Github, Twitter } from "lucide-react";
 
 export function Footer() {
   return (
@@ -8,11 +8,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <Globe size={16} className="text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">Linguiny</span>
+            <div className="flex items-center mb-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-white.png" alt="Linguiny" className="h-8 w-auto rounded-lg" />
             </div>
             <p className="text-gray-600 dark:text-gray-300 text-sm max-w-md">
               Your personal language learning companion. Master new languages with interactive lessons,

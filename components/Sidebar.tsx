@@ -79,11 +79,9 @@ export default function Sidebar() {
         aria-label="Main navigation"
       >
         {/* Logo */}
-        <div className="px-6 py-6 flex items-center gap-3 border-b border-white/10">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-lg" style={{ background: "#4a7cf7" }}>
-            <Globe size={20} />
-          </div>
-          <span className="text-white font-bold text-xl tracking-tight">Linguiny</span>
+        <div className="px-6 py-6 flex items-center border-b border-white/10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-white.png" alt="Linguiny" className="h-9 w-auto" />
         </div>
 
         {/* Nav */}
