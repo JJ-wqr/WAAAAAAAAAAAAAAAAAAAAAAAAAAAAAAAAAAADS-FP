@@ -16,6 +16,7 @@ const GREETINGS: Record<string, string> = {
   en: "Hello! I'm your English tutor. Let's practice together! What would you like to talk about today?",
   es: "¡Hola! (Hello!) Soy tu tutor de español. ¡Practiquemos juntos! ¿De qué quieres hablar hoy?",
   fr: "Bonjour ! (Hello!) Je suis ton tuteur de français. Pratiquons ensemble ! De quoi veux-tu parler aujourd'hui ?",
+  id: "Halo! (Hello!) Saya adalah tutor bahasa Indonesia Anda. Ayo berlatih bersama! Tentang apa Anda ingin berbicara hari ini?",
 };
 
 export default function ConversationPage() {

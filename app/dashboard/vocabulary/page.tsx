@@ -23,7 +23,7 @@ const THEME_OPTIONS = [
 ] as const;
 
 const SPEECH_LANG: Record<string, string> = {
-  ja: "ja-JP", es: "es-ES", fr: "fr-FR",
+  ja: "ja-JP", es: "es-ES", fr: "fr-FR", id: "id-ID",
 };
 
 // ── Flashcard Study Mode ─────────────────────────────────────────────────────
@@ -150,6 +150,7 @@ export default function VocabularyPage() {
     ja: "ja-JP",
     es: "es-ES",
     fr: "fr-FR",
+    id: "id-ID",
   };
 
   async function handleAiExample(w: { word: string; meaning: string }) {
