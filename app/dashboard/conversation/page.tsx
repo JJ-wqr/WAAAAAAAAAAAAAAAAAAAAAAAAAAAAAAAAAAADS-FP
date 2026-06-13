@@ -27,11 +27,11 @@ export default function ConversationPage() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  // const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  // useEffect(() => {
+  //   bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages, loading]);
 
   useEffect(() => {
     setMessages([{ role: "assistant", content: GREETINGS[lang] ?? GREETINGS.en }]);
@@ -98,7 +98,7 @@ export default function ConversationPage() {
             </div>
           </div>
         )}
-        <div ref={bottomRef} />
+        {/* <div ref={bottomRef} /> */}
       </div>
 
       {/* Input */}

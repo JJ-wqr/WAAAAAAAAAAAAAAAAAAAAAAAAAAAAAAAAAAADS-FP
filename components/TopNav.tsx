@@ -7,6 +7,7 @@ import { Search, X, Bell, BookOpen, Layers, BookMarked } from "lucide-react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
+import { LANGUAGES, getLangInfo, type LangCode } from "@/lib/languages";
 import { db } from "@/lib/firebase";
 import { unitData } from "@/lib/lessonData";
 import { flashcardDecks } from "@/lib/flashcardData";
@@ -21,6 +22,7 @@ type SearchResult = {
   title: string;
   subtitle: string;
   href: string;
+  lang: LangCode;
 };
 
 type Notification = {
@@ -31,6 +33,7 @@ type Notification = {
   title: string;
   body: string;
   unread: boolean;
+  href: string;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -73,6 +76,7 @@ function buildNotifications(stats: Record<string, number> | null): Notification[
         title: "Welcome to Linguiny!",
         body: "Start your first lesson to begin your journey.",
         unread: true,
+        href: "/dashboard/lessons",
       },
     ];
   }
@@ -87,6 +91,7 @@ function buildNotifications(stats: Record<string, number> | null): Notification[
       title: `${stats.streak}-day streak!`,
       body: "You're on a roll! Keep practicing daily.",
       unread: true,
+      href: "/dashboard/lessons",
     });
   } else {
     notes.push({
@@ -96,6 +101,7 @@ function buildNotifications(stats: Record<string, number> | null): Notification[
       title: "Daily reminder",
       body: "Don't forget to practice today!",
       unread: false,
+      href: "/dashboard/lessons",
     });
   }
 
@@ -110,6 +116,7 @@ function buildNotifications(stats: Record<string, number> | null): Notification[
         ? "Achievement unlocked: XP Machine! 🏆"
         : `${remaining} XP to go for the XP Machine badge.`,
       unread: remaining <= 500 && remaining > 0,
+      href: "/dashboard/profile?tab=achievements",
     });
   }
 
@@ -124,6 +131,7 @@ function buildNotifications(stats: Record<string, number> | null): Notification[
         ? "Achievement unlocked: Lesson Master! 🏆"
         : `${remaining} more to unlock Lesson Master.`,
       unread: remaining <= 0,
+      href: "/dashboard/profile?tab=achievements",
     });
   }
 
@@ -135,6 +143,7 @@ function buildNotifications(stats: Record<string, number> | null): Notification[
       title: "Ready to learn?",
       body: "Complete your first lesson and earn XP!",
       unread: true,
+      href: "/dashboard/lessons",
     });
   }
 
@@ -151,7 +160,7 @@ const TYPE_ICON = {
 
 export function TopNav() {
   const { user } = useAuth();
-  const { lang } = useLang();
+  const { lang, setLang } = useLang();
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -240,34 +249,45 @@ export function TopNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notifications, /* tick included via outer state re-render */]);
 
-  // Search results filtered by current language
+  // Search results across all languages, current language searched first
   const results: SearchResult[] = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q.length < 2) return [];
     const out: SearchResult[] = [];
+    const orderedCodes = [lang, ...LANGUAGES.map((l) => l.code).filter((c) => c !== lang)];
 
-    outer: for (const unit of unitData[lang] ?? []) {
-      for (const lesson of unit.lessons) {
-        if (lesson.title.toLowerCase().includes(q)) {
-          out.push({ type: "lesson", title: lesson.title, subtitle: `Unit ${unit.unit}: ${unit.title}`, href: "/dashboard/lessons" });
-          if (out.filter(r => r.type === "lesson").length >= 3) break outer;
+    let lc = 0;
+    lessons: for (const code of orderedCodes) {
+      const flag = getLangInfo(code).flag;
+      for (const unit of unitData[code] ?? []) {
+        for (const lesson of unit.lessons) {
+          if (lesson.title.toLowerCase().includes(q)) {
+            out.push({ type: "lesson", title: lesson.title, subtitle: `${flag} Unit ${unit.unit}: ${unit.title}`, href: "/dashboard/lessons", lang: code });
+            if (++lc >= 3) break lessons;
+          }
         }
       }
     }
 
     let fc = 0;
-    for (const card of flashcardDecks[lang] ?? []) {
-      if (card.back.toLowerCase().includes(q) || card.hint.toLowerCase().includes(q)) {
-        out.push({ type: "flashcard", title: card.back, subtitle: card.hint, href: "/dashboard/flashcards" });
-        if (++fc >= 3) break;
+    flashcards: for (const code of orderedCodes) {
+      const flag = getLangInfo(code).flag;
+      for (const card of flashcardDecks[code] ?? []) {
+        if (card.back.toLowerCase().includes(q) || card.hint.toLowerCase().includes(q)) {
+          out.push({ type: "flashcard", title: card.back, subtitle: `${flag} ${card.hint}`, href: "/dashboard/flashcards", lang: code });
+          if (++fc >= 3) break flashcards;
+        }
       }
     }
 
     let vc = 0;
-    for (const word of vocabularyData[lang] ?? []) {
-      if (word.meaning.toLowerCase().includes(q) || word.word.toLowerCase().includes(q) || word.romaji.toLowerCase().includes(q)) {
-        out.push({ type: "vocabulary", title: word.meaning, subtitle: word.romaji || word.word, href: "/dashboard/vocabulary" });
-        if (++vc >= 3) break;
+    vocabulary: for (const code of orderedCodes) {
+      const flag = getLangInfo(code).flag;
+      for (const word of vocabularyData[code] ?? []) {
+        if (word.meaning.toLowerCase().includes(q) || word.word.toLowerCase().includes(q) || word.romaji.toLowerCase().includes(q)) {
+          out.push({ type: "vocabulary", title: word.meaning, subtitle: `${flag} ${word.romaji || word.word}`, href: "/dashboard/vocabulary", lang: code });
+          if (++vc >= 3) break vocabulary;
+        }
       }
     }
 
@@ -321,7 +341,7 @@ export function TopNav() {
               {results.length > 0 ? results.map((r, i) => (
                 <button
                   key={i}
-                  onClick={() => { router.push(r.href); setSearchOpen(false); setQuery(""); }}
+                  onClick={() => { setLang(r.lang); router.push(r.href); setSearchOpen(false); setQuery(""); }}
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors"
                 >
                   <span className="shrink-0">{TYPE_ICON[r.type]}</span>
@@ -366,9 +386,10 @@ export function TopNav() {
                 </div>
                 <div className="divide-y divide-gray-100 dark:divide-gray-800 max-h-80 overflow-y-auto">
                   {notifications.map(n => (
-                    <div
+                    <button
                       key={n.id}
-                      className={`flex items-start gap-3 px-4 py-3 ${n.unread ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}`}
+                      onClick={() => { router.push(n.href); setNotifOpen(false); }}
+                      className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${n.unread ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}`}
                     >
                       <span className="text-xl shrink-0 mt-0.5">{n.icon}</span>
                       <div className="flex-1 min-w-0">
@@ -379,7 +400,7 @@ export function TopNav() {
                         </p>
                       </div>
                       {n.unread && <span className="mt-2 h-2 w-2 rounded-full bg-blue-500 shrink-0" />}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>

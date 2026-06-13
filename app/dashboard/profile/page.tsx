@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { doc, onSnapshot } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/components/authprovider";
@@ -21,11 +21,18 @@ const achievements = [
   { icon: "👑", title: "Top Learner", desc: "Reach #1 leaderboard", key: null, threshold: null },
 ];
 
+const POLYGLOT_XP_THRESHOLD = 50;
+const POLYGLOT_LANGUAGES_REQUIRED = 3;
+
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"stats" | "achievements" | "settings">("stats");
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<"stats" | "achievements" | "settings">(
+    initialTab === "achievements" || initialTab === "settings" ? initialTab : "stats"
+  );
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
@@ -44,6 +51,10 @@ export default function ProfilePage() {
       {flag: "🇬🇧", name: "English", level: "Beginner", xp: userData?.englishXp ?? 0 },
       {flag: "🇮🇩", name: "Indonesian", level: "Beginner", xp: userData?.indonesianXp ?? 0 },
     ];
+
+  const languagesLearned = Object.values(userData?.languageXp ?? {}).filter(
+    (xp: any) => xp >= POLYGLOT_XP_THRESHOLD
+  ).length;
 
   const initials = (user?.displayName ?? user?.email ?? "?")
     .split(" ")
@@ -102,7 +113,13 @@ export default function ProfilePage() {
               icon={achievement.icon}
               title={achievement.title}
               desc={achievement.desc}
-              earned={achievement.key && achievement.threshold ? (userData?.[achievement.key] ?? 0) >= achievement.threshold : false}
+              earned={
+                achievement.title === "Polyglot"
+                  ? languagesLearned >= POLYGLOT_LANGUAGES_REQUIRED
+                  : achievement.key && achievement.threshold
+                  ? (userData?.[achievement.key] ?? 0) >= achievement.threshold
+                  : false
+              }
             />
           ))}
         </div>

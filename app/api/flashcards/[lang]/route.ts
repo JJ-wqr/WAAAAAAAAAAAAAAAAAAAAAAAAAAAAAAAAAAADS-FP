@@ -11,7 +11,7 @@ export async function GET(
 
   if (!flashcardDecks[lang as LangCode]) {
     return NextResponse.json(
-      { error: "Invalid language. Must be one of: ja, en, es, fr" },
+      { error: "Invalid language. Must be one of: ja, en, es, fr, id" },
       { status: 400 }
     );
   }

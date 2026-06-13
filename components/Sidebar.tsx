@@ -27,7 +27,7 @@ const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/lessons", label: "Lessons", icon: GraduationCap },
   { href: "/dashboard/vocabulary", label: "Vocabulary", icon: BookOpen },
-  { href: "/dashboard/flashcards", label: "Flashcards", icon: FlipHorizontal2 },
+  { href: "/dashboard/vocabulary?view=flashcards", label: "Flashcards", icon: FlipHorizontal2 },
   { href: "/dashboard/conversation", label: "Conversation", icon: MessageCircle },
   { href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/dashboard/profile", label: "Profile", icon: User },

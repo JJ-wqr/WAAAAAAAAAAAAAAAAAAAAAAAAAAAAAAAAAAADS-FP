@@ -1,20 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
-  BookOpen, Star, TrendingUp,
+  BookOpen, Star,
   Globe, Sun, Moon, Monitor,
   Layers, RotateCcw,
   Check, X, Eye, EyeOff,
   Sparkles, Loader2,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { doc, updateDoc, increment, arrayUnion } from "firebase/firestore";
+import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
+import { db } from "@/lib/firebase";
 import { vocabularyData } from "@/lib/vocabularyData";
 import { getLangInfo, LANGUAGES } from "@/lib/languages";
 import { VocabularyFilters } from "./_components/VocabularyFilters";
 import { VocabularyWordCard } from "./_components/VocabularyWordCard";
 import SpeechButton from "@/components/SpeechButton";
+
+const SESSION_XP = 15;
 
 const THEME_OPTIONS = [
   { value: "light",  icon: Sun,     label: "Light" },
@@ -31,9 +37,10 @@ interface FlashcardProps {
   words: { word: string; romaji?: string; meaning: string; category: string; mastery: number }[];
   speechLang: string;
   onFinish: () => void;
+  onComplete: () => void;
 }
 
-function FlashcardStudy({ words, speechLang, onFinish }: FlashcardProps) {
+function FlashcardStudy({ words, speechLang, onFinish, onComplete }: FlashcardProps) {
   const [index, setIndex]     = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [correct, setCorrect] = useState(0);
@@ -42,7 +49,7 @@ function FlashcardStudy({ words, speechLang, onFinish }: FlashcardProps) {
 
   function answer(isCorrect: boolean) {
     if (isCorrect) setCorrect((c) => c + 1);
-    if (index + 1 >= words.length) { setDone(true); }
+    if (index + 1 >= words.length) { setDone(true); onComplete(); }
     else { setFlipped(false); setTimeout(() => setIndex((i) => i + 1), 120); }
   }
 
@@ -56,6 +63,7 @@ function FlashcardStudy({ words, speechLang, onFinish }: FlashcardProps) {
         <div>
           <p className="text-3xl font-bold text-gray-800">{pct}%</p>
           <p className="text-gray-500 mt-1">{correct} of {words.length} correct</p>
+          <p className="text-sm font-semibold mt-2" style={{ color: "#4a7cf7" }}>+{SESSION_XP} XP earned</p>
         </div>
         <button onClick={onFinish} className="px-6 py-3 rounded-2xl text-white font-semibold text-sm cursor-pointer" style={{ background: "#4a7cf7" }}>
           Back to vocabulary bank
@@ -116,6 +124,7 @@ function FlashcardStudy({ words, speechLang, onFinish }: FlashcardProps) {
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 export default function VocabularyPage() {
+  const { user } = useAuth();
   const { lang, setLang } = useLang();
   const words = vocabularyData[lang];
   const langInfo = getLangInfo(lang);
@@ -126,7 +135,10 @@ export default function VocabularyPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const [view, setView] = useState<"bank" | "flashcards">("bank");
+  const searchParams = useSearchParams();
+  const [view, setView] = useState<"bank" | "flashcards">(
+    searchParams.get("view") === "flashcards" ? "flashcards" : "bank"
+  );
   const [aiExamples, setAiExamples] = useState<Record<string, string>>({});
   const [aiLoading, setAiLoading]   = useState<Record<string, boolean>>({});
   const speechLang = SPEECH_LANG[lang] ?? "en-US";
@@ -143,8 +155,6 @@ export default function VocabularyPage() {
       (filter === "learning" && !w.known);
     return matchCat && matchSearch && matchFilter;
   });
-
-  const avgMastery = Math.round(words.reduce((s, w) => s + w.mastery, 0) / words.length);
 
   const speechLangMap: Record<string, string> = {
     ja: "ja-JP",
@@ -177,6 +187,22 @@ export default function VocabularyPage() {
   }
 
   const flashcardSet = [...filtered].sort((a, b) => a.mastery - b.mastery);
+
+  function handleFlashcardComplete() {
+    if (!user) return;
+    const docRef = doc(db, "users", user.uid);
+    updateDoc(docRef, {
+      xp: increment(SESSION_XP),
+      [`languageXp.${lang}`]: increment(SESSION_XP),
+      "dailyGoals.reviewedFlashcards": true,
+      recentActivity: arrayUnion({
+        action: `Vocabulary Review – ${flashcardSet.length} words`,
+        lang: `${langInfo.flag} ${langInfo.name}`,
+        time: new Date().toISOString(),
+        xp: `+${SESSION_XP} XP`,
+      }),
+    }).catch(console.error);
+  }
 
   return (
     <div className="p-8 space-y-6">
@@ -225,22 +251,14 @@ export default function VocabularyPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: "Total Words", value: words.length.toString(), icon: BookOpen, color: "#4a7cf7", bg: "#eef2ff" },
-          { label: "Mastered", value: words.filter((w) => w.mastery >= 80).length.toString(), icon: Star, color: "#34d399", bg: "#ecfdf5" },
-          { label: "Avg. Mastery", value: `${avgMastery}%`, icon: TrendingUp, color: "#f59e0b", bg: "#fffbeb" },
-        ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: bg }}>
-              <Icon size={20} style={{ color }} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{value}</p>
-              <p className="text-xs text-gray-500">{label}</p>
-            </div>
-          </div>
-        ))}
+      <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4 max-w-xs">
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "#eef2ff" }}>
+          <BookOpen size={20} style={{ color: "#4a7cf7" }} />
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-gray-800">{words.length}</p>
+          <p className="text-xs text-gray-500">Total Words</p>
+        </div>
       </div>
 
       {/* Flashcard mode */}
@@ -249,6 +267,7 @@ export default function VocabularyPage() {
           words={flashcardSet}
           speechLang={speechLang}
           onFinish={() => setView("bank")}
+          onComplete={handleFlashcardComplete}
         />
       )}
 

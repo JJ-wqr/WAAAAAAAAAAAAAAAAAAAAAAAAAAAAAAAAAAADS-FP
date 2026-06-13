@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import type { LangCode } from "@/lib/languages";
+import { LANGUAGES, type LangCode } from "@/lib/languages";
 
 const LangContext = createContext<{
   lang: LangCode;
@@ -13,7 +13,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("linguiny_lang") as LangCode;
-    if (saved && ["ja", "en", "es", "fr"].includes(saved)) setLangState(saved);
+    if (saved && LANGUAGES.some((l) => l.code === saved)) setLangState(saved);
   }, []);
 
   const setLang = (l: LangCode) => {
