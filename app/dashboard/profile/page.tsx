@@ -38,9 +38,11 @@ export default function ProfilePage() {
 
   const displayLanguages: { flag: string; name: string; level: string; xp: number }[] =
     userData?.languages ?? [
-      { flag: "🇯🇵", name: "Japanese", level: "Beginner", xp: 0 },
-      { flag: "🇪🇸", name: "Spanish", level: "Beginner", xp: 0 },
-      { flag: "🇫🇷", name: "French", level: "Beginner", xp: 0 },
+      { flag: "🇯🇵", name: "Japanese", level: "Beginner", xp: userData?.japaneseXp ?? 0 },
+      { flag: "🇪🇸", name: "Spanish", level: "Beginner", xp: userData?.spanishXp ?? 0 },
+      { flag: "🇫🇷", name: "French", level: "Beginner", xp: userData?.frenchXp ?? 0 },
+      {flag: "🇬🇧", name: "English", level: "Beginner", xp: userData?.englishXp ?? 0 },
+      {flag: "🇮🇩", name: "Indonesian", level: "Beginner", xp: userData?.indonesianXp ?? 0 },
     ];
 
   const initials = (user?.displayName ?? user?.email ?? "?")
