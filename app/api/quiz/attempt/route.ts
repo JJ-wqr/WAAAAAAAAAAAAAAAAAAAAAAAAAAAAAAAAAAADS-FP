@@ -2,11 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // POST /api/quiz/attempt
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { userId, lessonId, lang, score, xpEarned, answers } = body;
+import { sanitizeLangCode, enforceRateLimit } from "@/lib/security";
 
-  if (!userId || lessonId === undefined || !lang || score === undefined || xpEarned === undefined) {
+export async function POST(req: NextRequest) {
+  const rateLimit = enforceRateLimit(req, "/api/quiz/attempt", 30, 60_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again later." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) } }
+    );
+  }
+
+  const body = await req.json();
+  const userId = String(body.userId ?? "").trim();
+  const lessonId = Number(body.lessonId);
+  const lang = body.lang;
+  const score = Number(body.score);
+  const xpEarned = Number(body.xpEarned);
+  const answers = body.answers;
+
+  if (!userId || Number.isNaN(lessonId) || !lang || Number.isNaN(score) || Number.isNaN(xpEarned)) {
     return NextResponse.json(
       { error: "Missing required fields: userId, lessonId, lang, score, xpEarned" },
       { status: 400 }
@@ -20,20 +35,27 @@ export async function POST(req: NextRequest) {
     create: { id: userId, email: `${userId}@unknown.local`, emailVerified: false },
   });
 
+  const safeLang = sanitizeLangCode(lang, ["ja", "en", "es", "fr"], "en");
+  const sanitizedAnswers = Array.isArray(answers)
+    ? answers
+        .filter((a: any) => a && typeof a === "object")
+        .map((a: any) => ({
+          questionIndex: Number(a.questionIndex ?? 0),
+          selectedOption: Number(a.selectedOption ?? 0),
+          isCorrect: Boolean(a.isCorrect),
+        }))
+    : [];
+
   const attempt = await prisma.quizAttempt.create({
     data: {
       userId,
       lessonId,
-      lang,
+      lang: safeLang,
       score,
       xpEarned,
-      answers: answers?.length
+      answers: sanitizedAnswers.length
         ? {
-            create: answers.map((a: { questionIndex: number; selectedOption: number; isCorrect: boolean }) => ({
-              questionIndex: a.questionIndex,
-              selectedOption: a.selectedOption,
-              isCorrect: a.isCorrect,
-            })),
+            create: sanitizedAnswers,
           }
         : undefined,
     },

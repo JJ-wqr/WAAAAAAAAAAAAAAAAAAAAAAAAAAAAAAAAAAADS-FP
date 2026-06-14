@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sanitizeText, enforceRateLimit } from "@/lib/security";
 
 // GET /api/users/:uid
 export async function GET(
@@ -22,6 +23,14 @@ export async function PUT(
   { params }: { params: Promise<{ uid: string }> }
 ) {
   const { uid } = await params;
+  const rateLimit = enforceRateLimit(req, "/api/users/:uid", 20, 60_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again later." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) } }
+    );
+  }
+
   const body = await req.json();
   const { name, image } = body;
 
@@ -30,11 +39,14 @@ export async function PUT(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  const safeName = sanitizeText(name, 100);
+  const safeImage = sanitizeText(image, 500);
+
   const updated = await prisma.user.update({
     where: { id: uid },
     data: {
-      name: name ?? existing.name,
-      image: image ?? existing.image,
+      name: safeName || existing.name,
+      image: safeImage || existing.image,
     },
   });
 
@@ -43,9 +55,17 @@ export async function PUT(
 
 // DELETE /api/users/:uid
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
+  const rateLimit = enforceRateLimit(req, "/api/users/:uid", 10, 60_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again later." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) } }
+    );
+  }
+
   const { uid } = await params;
 
   const existing = await prisma.user.findUnique({ where: { id: uid } });

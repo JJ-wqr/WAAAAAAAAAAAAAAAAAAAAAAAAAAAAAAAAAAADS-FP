@@ -1,3 +1,5 @@
+import { sanitizeChatMessages, sanitizeLangCode, enforceRateLimit } from "@/lib/security";
+
 const LANG_NAMES: Record<string, string> = {
   ja: "Japanese",
   en: "English",
@@ -6,9 +8,25 @@ const LANG_NAMES: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
-  const { messages, lang } = await req.json();
+  const rateLimit = enforceRateLimit(req, "/api/ai/chat", 15, 60_000);
+  if (!rateLimit.allowed) {
+    return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again later." }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", "Retry-After": String(rateLimit.retryAfter ?? 60) },
+    });
+  }
 
-  const langName = LANG_NAMES[lang] ?? "the target language";
+  const { messages, lang } = await req.json();
+  const safeMessages = sanitizeChatMessages(messages);
+  if (safeMessages.length === 0) {
+    return new Response(JSON.stringify({ error: "Invalid chat data." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const safeLang = sanitizeLangCode(lang, Object.keys(LANG_NAMES), "en");
+  const langName = LANG_NAMES[safeLang] ?? "the target language";
 
   const systemPrompt = `You are a friendly and encouraging language tutor helping the user practice ${langName} through conversation.
 Rules:
@@ -28,7 +46,7 @@ Rules:
       },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        messages: [{ role: "system", content: systemPrompt }, ...safeMessages],
         max_tokens: 200,
         temperature: 0.7,
       }),

@@ -1,11 +1,31 @@
+import { sanitizeText, enforceRateLimit } from "@/lib/security";
+
 export async function POST(req: Request) {
+  const rateLimit = enforceRateLimit(req, "/api/ai/feedback", 20, 60_000);
+  if (!rateLimit.allowed) {
+    return new Response(JSON.stringify({ feedback: "Rate limit exceeded. Try again later." }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", "Retry-After": String(rateLimit.retryAfter ?? 60) },
+    });
+  }
+
   const { question, userAnswer, correctAnswer } = await req.json();
+  const safeQuestion = sanitizeText(question, 1000);
+  const safeUserAnswer = sanitizeText(userAnswer, 1000);
+  const safeCorrectAnswer = sanitizeText(correctAnswer, 1000);
+
+  if (!safeQuestion || !safeUserAnswer || !safeCorrectAnswer) {
+    return new Response(JSON.stringify({ feedback: "Invalid feedback request." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   const prompt = `You are a helpful language tutor. Explain briefly why the answer is correct or incorrect in 1-2 sentences.
 
-Question: ${question}
-User Answer: ${userAnswer}
-Correct Answer: ${correctAnswer}`;
+Question: ${safeQuestion}
+User Answer: ${safeUserAnswer}
+Correct Answer: ${safeCorrectAnswer}`;
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
