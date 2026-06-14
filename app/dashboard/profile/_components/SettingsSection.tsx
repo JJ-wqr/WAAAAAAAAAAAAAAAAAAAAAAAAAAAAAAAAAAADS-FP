@@ -237,9 +237,9 @@ export function SettingsSection({ userId, notifications, handleLogout }: Setting
       {activeModal === "change-email"   && <ChangeEmailModal    onClose={() => setActiveModal(null)} />}
       {activeModal === "change-password"&& <ChangePasswordModal onClose={() => setActiveModal(null)} />}
 
-      <div className="space-y-4 max-w-lg">
+      <div className="space-y-4 w-full max-w-full">
         {settingsSections.map(({ title, items }) => (
-          <div key={title} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div key={title} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full">
             <div className="px-6 py-3 border-b border-gray-50">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{title}</p>
             </div>
@@ -286,7 +286,7 @@ export function SettingsSection({ userId, notifications, handleLogout }: Setting
           </div>
         ))}
 
-        <div className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden w-full">
           <div className="px-6 py-3 border-b border-red-50">
             <p className="text-xs font-semibold text-red-400 uppercase tracking-wider">Account</p>
           </div>

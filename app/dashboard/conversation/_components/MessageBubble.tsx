@@ -16,7 +16,7 @@ export function MessageBubble({ msg }: { msg: Message }) {
         </div>
       )}
       <div
-        className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+        className={`max-w-[90%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
           msg.role === "user"
             ? "text-white rounded-br-none"
             : "bg-gray-100 text-gray-800 rounded-bl-none"

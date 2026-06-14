@@ -87,7 +87,11 @@ export default function LoginForm() {
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: "linear-gradient(160deg, #5b9cf6 0%, #7ab3f7 40%, #93c5fd 70%, #bfdbfe 100%)" }}
+      style={{ 
+        background: "linear-gradient(160deg, #5b9cf6 0%, #7ab3f7 40%, #93c5fd 70%, #bfdbfe 100%)",
+        width: "100vw",
+        marginLeft: "calc(-50vw + 50%)"
+      }}
     >
       <div className="absolute bottom-0 left-0 w-full pointer-events-none">
         <svg viewBox="0 0 1440 200" className="w-full" preserveAspectRatio="none">

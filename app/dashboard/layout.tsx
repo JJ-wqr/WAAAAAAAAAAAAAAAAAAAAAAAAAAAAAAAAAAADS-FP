@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <ProgressProvider>
           <div className="min-h-screen flex flex-col bg-[var(--bg-page)]">
             <Sidebar />
-            <div className="flex flex-1 flex-col lg:ml-64">
+            <div className="flex flex-1 flex-col lg:ml-16">
               <TopNav />
               <main className="flex-1 overflow-y-auto">
                 <div className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">{children}</div>

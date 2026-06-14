@@ -74,7 +74,7 @@ export default function ConversationPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] max-w-3xl mx-auto">
+    <div className="flex flex-col h-[calc(100vh-6rem)] max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <ChatHeader lang={lang} onReset={reset} />
 
