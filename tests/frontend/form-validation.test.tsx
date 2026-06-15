@@ -147,6 +147,7 @@ describe('UI Behavior Tests', () => {
       const submitButton = document.createElement('button');
       submitButton.type = 'submit';
       form.appendChild(submitButton);
+      document.body.appendChild(form);
 
       let submitted = false;
       form.addEventListener('submit', (e) => {
@@ -156,6 +157,8 @@ describe('UI Behavior Tests', () => {
 
       submitButton.click();
       expect(submitted).toBe(true);
+      
+      document.body.removeChild(form);
     });
 
     it('should update form fields on input change', () => {
@@ -188,17 +191,21 @@ describe('UI Behavior Tests', () => {
     it('should allow focus on email input', () => {
       const input = document.createElement('input');
       input.type = 'email';
+      document.body.appendChild(input);
       input.focus();
 
       expect(document.activeElement).toBe(input);
+      document.body.removeChild(input);
     });
 
     it('should allow focus on password input', () => {
       const input = document.createElement('input');
       input.type = 'password';
+      document.body.appendChild(input);
       input.focus();
 
       expect(document.activeElement).toBe(input);
+      document.body.removeChild(input);
     });
   });
 });

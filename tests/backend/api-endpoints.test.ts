@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest globals are auto-available: describe, it, expect, beforeEach, afterEach, jest as vi
 import { createMockRequest, createAuthHeader, expectStatusCode } from '../utils';
 
 describe('API Endpoint Tests', () => {

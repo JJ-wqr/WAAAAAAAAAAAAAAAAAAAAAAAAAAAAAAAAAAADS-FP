@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+// Jest globals are auto-available: describe, it, expect, beforeEach
 
 describe('Security Testing', () => {
   describe('XSS (Cross-Site Scripting) Tests', () => {
@@ -143,7 +143,7 @@ describe('Security Testing', () => {
 
     it('should validate JWT tokens', () => {
       const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U';
-      const invalidToken = 'invalid.token.format';
+      const invalidToken = 'invalid-token-format';
 
       expect(validToken.split('.').length).toBe(3);
       expect(invalidToken.split('.').length).not.toBe(3);
