@@ -26,7 +26,7 @@ Linguiny is a web-based language learning application designed to help users imp
 The platform supports multiple languages and provides personalized learning experiences through adaptive learning mechanisms and AI-generated feedback.
 
 # Architecture Design
-# System Architecture
+## System Architecture
 ### Frontend
 - Next.js
 - React
