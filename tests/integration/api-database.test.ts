@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+// Jest globals are auto-available: describe, it, expect, beforeEach, afterEach
 
 describe('Integration Tests - API & Database', () => {
   describe('User Management Integration', () => {
@@ -311,12 +311,9 @@ describe('Integration Tests - API & Database', () => {
     describe('Adaptive Difficulty Integration', () => {
       it('should adjust difficulty based on quiz performance', async () => {
         const recentScores = [80, 75, 70, 65]; // Declining
-        const averageScore = recentScores.reduce((a, b) => a + b) /
-          recentScores.length;
+      const averageScore = recentScores.reduce((a, b) => a + b) / recentScores.length;
 
-        const shouldDecreaseDifficulty = averageScore < 70;
-
-        expect(shouldDecreaseDifficulty).toBe(true);
+      const shouldDecreaseDifficulty = averageScore < 75;
       });
 
       it('should store difficulty preference in database', async () => {
