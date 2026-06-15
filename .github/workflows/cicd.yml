@@ -1,0 +1,44 @@
+name: Linguiny CI/CD
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/linguiny:latest
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull latest image
+        run: docker pull ${{ secrets.DOCKER_USERNAME }}/linguiny:latest
+
+      - name: Restart container
+        run: |
+          docker stop linguiny || true
+          docker rm linguiny || true
+          docker run -d \
+            --name linguiny \
+            -p 3025:3000 \
+            --env-file .env.production \
+            ${{ secrets.DOCKER_USERNAME }}/linguiny:latest
