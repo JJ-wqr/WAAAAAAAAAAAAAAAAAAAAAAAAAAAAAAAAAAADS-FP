@@ -82,11 +82,11 @@ Rules:
       if (Array.isArray(parsed?.sentences)) {
         sentences = parsed.sentences
           .filter((s: unknown): s is Record<string, unknown> => Boolean(s) && typeof s === "object")
-          .map((s) => ({
+          .map((s: Record<string, unknown>) => ({   
             text: sanitizeText(s.text, 300),
             translation: sanitizeText(s.translation, 300),
           }))
-          .filter((s) => s.text && s.translation)
+          .filter((s: { text: any; translation: any; }) => s.text && s.translation)
           .slice(0, 3);
       }
     } catch (parseErr) {
