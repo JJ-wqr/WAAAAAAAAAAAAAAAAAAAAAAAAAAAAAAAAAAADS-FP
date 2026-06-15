@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import {
   LayoutDashboard,
   BookOpen,
@@ -94,8 +95,13 @@ export default function Sidebar() {
           className="px-4 py-4 flex items-center gap-3 border-b border-white/10 justify-between cursor-pointer hover:opacity-90"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-lg" style={{ background: "#4a7cf7" }}>
-              <Globe size={20} />
+            <div className="w-9 h-9 flex items-center justify-center">
+              <Image
+                src="/logo-symbol.png"
+                alt="Linguiny Logo"
+                width={36}
+                height={36}
+              />
             </div>
             {(!collapsed || isHovered) && (
               <span className="text-white font-bold text-xl tracking-tight">Linguiny</span>

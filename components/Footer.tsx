@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Globe, Mail, Github, Twitter } from "lucide-react";
 
 export function Footer() {
@@ -9,8 +10,13 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <Globe size={16} className="text-white" />
+              <div className="w-9 h-9 flex items-center justify-center">
+                <Image 
+                  src="/logo-symbol.png" 
+                  alt="Linguiny Logo" 
+                  width={36} 
+                  height={36} 
+                />
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">Linguiny</span>
             </div>

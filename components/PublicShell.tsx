@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Globe } from "lucide-react";
 import { Footer } from "@/components/Footer";
 
@@ -18,8 +19,13 @@ export function PublicShell({ title, description, children }: PublicShellProps) 
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <Link href="/" className="inline-flex items-center gap-3 text-xl font-semibold text-slate-900 dark:text-white">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
-                <Globe size={18} />
+              <span className="w-9 h-9 flex items-center justify-center">
+                <Image
+                  src="/logo-symbol.png"
+                  alt="Linguiny Logo"
+                  width={36}
+                  height={36}
+                />
               </span>
               Linguiny
             </Link>
