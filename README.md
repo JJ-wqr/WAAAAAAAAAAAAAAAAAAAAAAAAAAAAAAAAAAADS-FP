@@ -5,27 +5,45 @@ Course Code: COMP6703001<br>
 Course Name: Web Application Development and Security<br>
 Institution: BINUS University International<br>
 
-# 1. Project Information
+# Group Information
+Group Name: Linguiny
 
-Project Title: Linguiniy <br>
+Class: L4BC
+
+### Members
+- David Nathanael Halim (2802569346)
+- Davin Alexander (2802530653)
+- Jeremy Nathanael Gunawan (2802522960)
+
+# Project Information
+
+Project Title: Linguiny – AI-Powered Language Learning Platform <br>
 Project Domain: Language Learning Web Application
 
-# 2. Tech Stack
+## Project Description
+Linguiny is a web-based language learning application designed to help users improve their language skills through interactive lessons, quizzes, AI-powered conversations, and pronunciation practice.
 
-Frontend        : Next.js<br>
-Backend         : Node.js or Next.js<br>
-API REST        : REST API<br>
-Database        : PostgreSQL (Main Database for project and user data) / Firebase (for auth only)<br>
-Containerization: Docker<br>
-Deployment      : University Server OR Live deployment with HTTPS  (not fully decided yet)<br>
-Development & Design Tools  :  Figma (UI/UX Design) and Draw.io<br>
-Version Control : GitHub<br>
+The platform supports multiple languages and provides personalized learning experiences through adaptive learning mechanisms and AI-generated feedback.
 
-# 3. System Architecture
+# Architecture Design
+## User Requirement Specification (URS)
 
-# 3.1 Architecture Diagram
 
-![System Architecture](Diagrams/architecture-diagram.png)<br>
 
-# 3.2 Architecture Explanation
-A monolithic backend architecture is better for a language learning web application because it simplifies development, deployment, and data management. Since most language learning systems rely heavily on consistent user progress tracking and integrated business logic, a single unified backend reduces complexity, improves maintainability, lowers infrastructure cost, and provides sufficient performance for small to medium-scale applications.
+## Software Requirement Specification (SRS)
+
+
+
+# Features
+
+
+
+# Security Implementation
+
+
+
+# Testing Strategy
+
+
+
+
