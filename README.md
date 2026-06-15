@@ -26,6 +26,30 @@ Linguiny is a web-based language learning application designed to help users imp
 The platform supports multiple languages and provides personalized learning experiences through adaptive learning mechanisms and AI-generated feedback.
 
 # Architecture Design
+# System Architecture
+### Frontend
+- Next.js
+- React
+- Tailwind CSS
+
+### Backend
+- Next.js API Routes
+
+### Database
+- Firebase Firestore
+- PostgreSQL
+
+### Authentication
+- Firebase Authentication
+
+### AI Service
+- Groq API (Llama 3.3 70B Versatile)
+
+### Deployment
+- Docker
+- GitHub Actions CI/CD
+- CSBIHub Remote Server
+
 ## User Requirement Specification (URS)
 ### Learner
 - Register and login securely
@@ -83,25 +107,6 @@ The platform supports multiple languages and provides personalized learning expe
 #### Reliability
 
 
-# System Architecture
-### Frontend
-- Next.js
-- React
-- Tailwind CSS
-
-### Backend
-- Next.js API Routes
-
-### Database
-- Firebase Firestore
-- PostgreSQL
-
-### Authentication
-- Firebase Authentication
-
-### AI Service
-- Groq API
-
 # Features (Per Member)
 ## David Nathanael Halim
 ### Security Features
@@ -112,6 +117,25 @@ The platform supports multiple languages and provides personalized learning expe
 - Responsive Navigation
 - User Settings
 - Notifications
+- Logo Integration
+- Sidebar Improvements
+- General UI Refinements
+
+### Testing
+- Frontend Testing
+- Backend API Testing
+- Integration Testing
+- Security Testing
+- AI Functionality Testing
+
+### Deployment & Infrastructure
+- Docker Configuration
+- CI/CD Pipeline Setup
+- GitHub Repository Management
+- Production Deployment Preparation
+
+### Additional Features
+- Text-to-Speech for Vocabulary Lessons
 
 ## Davin Alexander
 
@@ -143,7 +167,19 @@ The application implements several security measures:
 - Prevents abuse and excessive requests
 
 # Testing Strategy
+## Frontend Testing
 
 
 
+## Backend & API Testing
 
+
+
+## Integration Testing
+
+
+
+## Security Testing
+
+
+## AI Functionality Testing
