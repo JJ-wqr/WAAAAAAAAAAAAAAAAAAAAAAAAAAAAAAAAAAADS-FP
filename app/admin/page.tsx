@@ -6,21 +6,24 @@ import { useRouter } from "next/navigation";
 import { Shield, Users, BookOpen, BarChart3, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { authedFetch } from "@/lib/authedFetch";
 
 export default function AdminPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
-      router.push("/");
+      router.push("/login");
       return;
     }
 
     // Check user role from database
-    fetch(`/api/users/${user.uid}`)
+    authedFetch(`/api/users/${user.uid}`)
       .then(res => res.json())
       .then(data => {
         if (data.user?.role !== "admin") {
@@ -33,7 +36,7 @@ export default function AdminPage() {
       .catch(() => {
         router.push("/dashboard");
       });
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   if (loading) {
     return (

@@ -3,12 +3,12 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { initializeFirestore, persistentLocalCache } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCpQw_JpjN7gYwZ7LTNU7Wc-oJ40y4pKRA",
-  authDomain: "linguiny-project-1.firebaseapp.com",
-  projectId: "linguiny-project-1",
-  storageBucket: "linguiny-project-1.firebasestorage.app",
-  messagingSenderId: "864394093073",
-  appId: "1:864394093073:web:742dbf4afe46901fd907b0"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);

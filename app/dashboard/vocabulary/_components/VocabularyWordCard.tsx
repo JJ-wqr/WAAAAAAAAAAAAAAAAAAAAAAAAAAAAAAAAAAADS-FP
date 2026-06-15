@@ -19,12 +19,12 @@ export function VocabularyWordCard({ word, speechLang }: { word: any; speechLang
         <div className="flex items-center gap-2">
           <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full"
-              style={{ width: `${word.mastery}%`, background: masteryColor(word.mastery) }}
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${word.mastery || 0}%`, background: masteryColor(word.mastery || 0) }}
             />
           </div>
-          <span className="text-xs font-semibold" style={{ color: masteryColor(word.mastery) }}>
-            {word.mastery}%
+          <span className="text-xs font-semibold" style={{ color: masteryColor(word.mastery || 0) }}>
+            {word.mastery || 0}%
           </span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { doc, onSnapshot, updateDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
@@ -12,12 +12,18 @@ import { DashboardStatCards } from "./_components/DashboardStatCard";
 import { DashboardGoalsCard } from "./_components/DashboardGoalsCard";
 import { DashboardLanguagesCard } from "./_components/DashboardLanguages";
 import { DashboardRecentActivity } from "./_components/DashboardRecentActivity";
+import { AdaptiveDifficultyCard } from "./_components/AdaptiveDifficultyCard";
+import { authedFetch } from "@/lib/authedFetch";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { lang: selectedLangCode, setLang: setSelectedLangCode } = useLang();
   const [userData, setUserData] = useState<any>(null);
   const [now, setNow] = useState<Date | null>(null);
+  const [adaptiveLoading, setAdaptiveLoading] = useState(false);
+  const [adaptiveLevel, setAdaptiveLevel] = useState<"beginner" | "intermediate" | "advanced" | null>(null);
+  const [adaptiveRecommendation, setAdaptiveRecommendation] = useState<string | null>(null);
+  const [recentScores, setRecentScores] = useState<number[]>([]);
 
   useEffect(() => {
     setNow(new Date());
@@ -65,6 +71,62 @@ export default function DashboardPage() {
     });
     return () => unsubscribe();
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+
+    const loadAdaptiveDifficulty = async () => {
+      setAdaptiveLoading(true);
+      try {
+        const attemptsRes = await authedFetch(
+          `/api/quiz/attempts/${user.uid}?lang=${selectedLangCode}`
+        );
+        const attemptsData = await attemptsRes.json();
+
+        const recentScores: number[] = Array.isArray(attemptsData.attempts)
+          ? attemptsData.attempts.slice(0, 3).map((a: { score: number }) => a.score)
+          : [];
+        setRecentScores(recentScores);
+
+        const res = await authedFetch("/api/ai/adaptive-difficulty", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.uid, lang: selectedLangCode, recentScores }),
+        });
+        const data = await res.json();
+
+        if (!cancelled) {
+          setAdaptiveLevel(data.level ?? null);
+          setAdaptiveRecommendation(data.recommendation ?? null);
+        }
+      } catch {
+        if (!cancelled) {
+          setAdaptiveLevel(null);
+          setAdaptiveRecommendation(null);
+        }
+      } finally {
+        if (!cancelled) setAdaptiveLoading(false);
+      }
+    };
+
+    loadAdaptiveDifficulty();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, selectedLangCode]);
+
+  // compute a lightweight fallback recommendation if the AI didn't return one
+  const computedRecommendation = useMemo(() => {
+    if (adaptiveRecommendation) return adaptiveRecommendation;
+    if (!recentScores || recentScores.length === 0) return null;
+    const avg = Math.round(recentScores.reduce((s, v) => s + v, 0) / recentScores.length);
+    if (avg >= 80) return "Advanced";
+    if (avg >= 50) return "Intermediate";
+    return "Beginner";
+  }, [adaptiveRecommendation, recentScores]);
 
   const lessonScores: Record<string, number> = userData?.lessonScores ?? {};
   const skillTotals: Record<SkillCategory, { sum: number; count: number }> = {
@@ -121,6 +183,13 @@ export default function DashboardPage() {
         setSelectedLangCode={setSelectedLangCode}
       />
       <DashboardStatCards userData={userData} />
+      <AdaptiveDifficultyCard
+        loading={adaptiveLoading}
+        level={adaptiveLevel}
+        recommendation={adaptiveRecommendation}
+        recentScores={recentScores}
+        computedRecommendation={computedRecommendation}
+      />
       <DashboardGoalsCard
         displaySkills={displaySkills}
         selectedLang={selectedLang}

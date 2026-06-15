@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sanitizeText, enforceRateLimit } from "@/lib/security";
+import { getAuthenticatedUid } from "@/lib/firebaseAdmin";
 
 // GET /api/users/:uid
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
   const { uid } = await params;
+
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (requesterUid !== uid) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: uid } });
   if (!user) {
@@ -29,6 +38,14 @@ export async function PUT(
       { error: "Rate limit exceeded. Try again later." },
       { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) } }
     );
+  }
+
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (requesterUid !== uid) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const body = await req.json();
@@ -67,6 +84,14 @@ export async function DELETE(
   }
 
   const { uid } = await params;
+
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (requesterUid !== uid) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const existing = await prisma.user.findUnique({ where: { id: uid } });
   if (!existing) {

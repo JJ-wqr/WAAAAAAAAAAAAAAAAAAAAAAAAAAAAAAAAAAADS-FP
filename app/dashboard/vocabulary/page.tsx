@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLang } from "@/components/languageprovider";
-import { vocabularyData } from "@/lib/vocabularyData";
+import { vocabularyData, type VocabWord } from "@/lib/vocabularyData";
 import { getLangInfo, LANGUAGES } from "@/lib/languages";
 import { useProgress } from "@/lib/progressContext";
 import { VocabularyFilters } from "./_components/VocabularyFilters";
@@ -31,17 +31,21 @@ interface FlashcardProps {
   words: { word: string; romaji?: string; meaning: string; category: string; mastery: number }[];
   speechLang: string;
   onFinish: () => void;
+  onVocabularyUpdated?: () => Promise<void> | void;
 }
 
-function FlashcardStudy({ words, speechLang, onFinish }: FlashcardProps) {
+function FlashcardStudy({ words, speechLang, onFinish, onVocabularyUpdated }: FlashcardProps) {
   const [index, setIndex]     = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [correct, setCorrect] = useState(0);
   const [done, setDone]       = useState(false);
   const card = words[index];
 
-  function answer(isCorrect: boolean) {
+  async function answer(isCorrect: boolean) {
     if (isCorrect) setCorrect((c) => c + 1);
+    if (onVocabularyUpdated) {
+      await onVocabularyUpdated();
+    }
     if (index + 1 >= words.length) { setDone(true); }
     else { setFlipped(false); setTimeout(() => setIndex((i) => i + 1), 120); }
   }
@@ -116,12 +120,32 @@ export default function VocabularyPage() {
   const langInfo = getLangInfo(lang);
   const { mastery: masteryMap, known: knownMap } = useProgress();
 
-  // Merge live mastery/known from context into static word list
-  const words = (vocabularyData[lang] ?? []).map(w => ({
+  const [baseWords, setBaseWords] = useState<VocabWord[]>(vocabularyData[lang] ?? []);
+  const [exampleSentences, setExampleSentences] = useState<Record<string, string>>({});
+  const [aiLoading, setAiLoading]   = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setBaseWords(vocabularyData[lang] ?? []);
+  }, [lang]);
+
+  const words = baseWords.map((w) => ({
     ...w,
     mastery: masteryMap[lang]?.[w.word] ?? w.mastery,
     known:   knownMap[lang]?.[w.word]   ?? w.known,
   }));
+
+  const refreshVocabularyData = async () => {
+    try {
+      const res = await fetch(`/api/vocabulary/${encodeURIComponent(lang)}`);
+      if (!res.ok) throw new Error("Failed to refresh vocabulary data");
+      const data = await res.json();
+      if (Array.isArray(data.words)) {
+        setBaseWords(data.words);
+      }
+    } catch (error) {
+      console.error("refreshVocabularyData error:", error);
+    }
+  };
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -130,8 +154,6 @@ export default function VocabularyPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const [view, setView] = useState<"bank" | "flashcards">("bank");
-  const [aiExamples, setAiExamples] = useState<Record<string, string>>({});
-  const [aiLoading, setAiLoading]   = useState<Record<string, boolean>>({});
   const speechLang = SPEECH_LANG[lang] ?? "en-US";
 
   const filtered = words.filter((w) => {
@@ -153,24 +175,31 @@ export default function VocabularyPage() {
 
   const speechLangMap: Record<string, string> = { ja: "ja-JP", es: "es-ES", fr: "fr-FR" };
 
-  async function handleAiExample(w: { word: string; meaning: string }) {
-    if (aiLoading[w.word] || aiExamples[w.word]) return;
+  function mapCategoryToPartOfSpeech(category: string) {
+    if (category.toLowerCase().includes("verb")) return "verb";
+    if (category.toLowerCase().includes("noun")) return "noun";
+    if (category.toLowerCase().includes("adjective")) return "adjective";
+    return category;
+  }
+
+  async function handleAiExample(w: { word: string; category: string }) {
+    if (aiLoading[w.word] || exampleSentences[w.word]) return;
     setAiLoading((prev) => ({ ...prev, [w.word]: true }));
     try {
-      const res = await fetch("/api/ai/feedback", {
+      const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          question: `Give ONE short example sentence using "${w.word}" (${w.meaning}) in ${langInfo.name}. Reply with just the sentence.`,
-          userAnswer: w.word,
-          correctAnswer: w.meaning,
-          lang,
+          word: w.word,
+          partOfSpeech: mapCategoryToPartOfSpeech(w.category),
+          language: langInfo.name,
         }),
       });
       const data = await res.json();
-      setAiExamples((prev) => ({ ...prev, [w.word]: data.feedback ?? "Could not generate example." }));
-    } catch {
-      setAiExamples((prev) => ({ ...prev, [w.word]: "AI unavailable. Try again later." }));
+      setExampleSentences((prev) => ({ ...prev, [w.word]: data.sentence ?? "Could not generate example." }));
+    } catch (error) {
+      console.error("handleAiExample error:", error);
+      setExampleSentences((prev) => ({ ...prev, [w.word]: "AI unavailable. Try again later." }));
     } finally {
       setAiLoading((prev) => ({ ...prev, [w.word]: false }));
     }
@@ -244,7 +273,12 @@ export default function VocabularyPage() {
       </div>
 
       {view === "flashcards" && (
-        <FlashcardStudy words={flashcardSet} speechLang={speechLang} onFinish={() => setView("bank")} />
+        <FlashcardStudy
+          words={flashcardSet}
+          speechLang={speechLang}
+          onFinish={() => setView("bank")}
+          onVocabularyUpdated={refreshVocabularyData}
+        />
       )}
 
       {view === "bank" && (
@@ -259,9 +293,9 @@ export default function VocabularyPage() {
               <div key={w.word} className="flex flex-col gap-2">
                 <VocabularyWordCard word={w} speechLang={speechLangMap[lang] || "en-US"} />
                 <div className="px-1">
-                  {aiExamples[w.word] ? (
+                  {exampleSentences[w.word] ? (
                     <div className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 text-xs text-blue-700 leading-relaxed">
-                      {aiExamples[w.word]}
+                      {exampleSentences[w.word]}
                     </div>
                   ) : (
                     <button

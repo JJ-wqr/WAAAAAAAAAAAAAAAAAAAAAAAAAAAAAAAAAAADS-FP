@@ -9,6 +9,7 @@ import { ChatInput } from "./_components/ChatInput";
 interface Message {
   role: "user" | "assistant";
   content: string;
+  correction?: string | null;
 }
 
 const GREETINGS: Record<string, string> = {
@@ -56,7 +57,7 @@ export default function ConversationPage() {
       const data = await res.json();
       setMessages([
         ...updated,
-        { role: "assistant", content: data.reply ?? data.error ?? "Sorry, try again." },
+        { role: "assistant", content: data.reply ?? data.error ?? "Sorry, try again.", correction: data.correction ?? null },
       ]);
     } catch {
       setMessages([

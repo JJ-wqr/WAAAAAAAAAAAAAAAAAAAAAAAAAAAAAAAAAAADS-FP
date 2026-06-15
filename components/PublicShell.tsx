@@ -30,7 +30,7 @@ export function PublicShell({ title, description, children }: PublicShellProps) 
               Linguiny
             </Link>
             <div className="flex flex-wrap items-center gap-3">
-              <Link href="/" className="text-sm font-medium text-slate-700 hover:text-blue-700 transition text-white">
+              <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-blue-700 transition text-white">
                 Login
               </Link>
               <Link

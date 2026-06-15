@@ -52,7 +52,7 @@ export default function RegisterForm() {
         }),
       }).catch(() => {});
 
-      router.push("/?registered=1");
+      router.push("/login?registered=1");
     } catch (err: any) {
       if (err?.code === "auth/email-already-in-use") {
         toast.error("This email is already registered. Please log in instead.");
@@ -123,7 +123,7 @@ export default function RegisterForm() {
 
         <p className="text-center text-sm text-gray-500 mt-5">
           Already have an account?{" "}
-          <Link href="/" className="font-medium hover:underline" style={{ color: "#4a7cf7" }}>
+          <Link href="/login" className="font-medium hover:underline" style={{ color: "#4a7cf7" }}>
             Login
           </Link>
         </p>

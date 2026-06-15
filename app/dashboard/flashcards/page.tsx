@@ -25,7 +25,11 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function FlashcardsPage() {
+type FlashcardsPageProps = {
+  onVocabularyUpdated?: () => Promise<void> | void;
+};
+
+export default function FlashcardsPage({ onVocabularyUpdated }: FlashcardsPageProps) {
   const { user } = useAuth();
   const { lang } = useLang();
   const langInfo = getLangInfo(lang);
@@ -43,7 +47,7 @@ export default function FlashcardsPage() {
 
   const card = deck[index];
 
-  const handleKnow = (didKnow: boolean) => {
+  const handleKnow = async (didKnow: boolean) => {
     // Sync mastery to shared context — matches by front === word
     if (didKnow) {
       setKnown((p) => [...p, index]);
@@ -51,6 +55,10 @@ export default function FlashcardsPage() {
     } else {
       setUnknown((p) => [...p, index]);
       markUnknown(lang, card.front);
+    }
+
+    if (onVocabularyUpdated) {
+      await onVocabularyUpdated();
     }
 
     if (index + 1 >= total) {

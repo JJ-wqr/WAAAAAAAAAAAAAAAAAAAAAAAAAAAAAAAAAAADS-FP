@@ -9,6 +9,8 @@ import { db } from "@/lib/firebase";
 import { lessonQuizzes } from "@/lib/lessonData";
 import { type LangCode, getLangInfo, progressKey } from "@/lib/languages";
 import { notifyUserIfEnabled } from "@/lib/notifications";
+import { authedFetch } from "@/lib/authedFetch";
+import { PracticeSentences } from "./_components/PracticeSentences";
 
 const SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -135,7 +137,7 @@ export default function QuizPage() {
           );
 
           // Fire-and-forget Prisma save
-          fetch("/api/quiz/attempt", {
+          authedFetch("/api/quiz/attempt", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -253,6 +255,10 @@ export default function QuizPage() {
           />
         </div>
       </div>
+
+          {!confirmed && q && (
+            <PracticeSentences topic={q.question} lang={lang} level="beginner" />
+          )}
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <h2 className="text-xl font-bold text-gray-800 mb-8 text-center leading-snug">{q.question}</h2>

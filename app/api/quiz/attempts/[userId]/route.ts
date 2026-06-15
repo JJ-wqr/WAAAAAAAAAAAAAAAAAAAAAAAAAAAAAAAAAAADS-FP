@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUid } from "@/lib/firebaseAdmin";
 
 // GET /api/quiz/attempts/:userId
 export async function GET(
@@ -9,6 +10,14 @@ export async function GET(
   const { userId } = await params;
   const { searchParams } = new URL(req.url);
   const lang = searchParams.get("lang");
+
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (requesterUid !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sanitizeLangCode, enforceRateLimit } from "@/lib/security";
+import { getAuthenticatedUid } from "@/lib/firebaseAdmin";
 
 // POST /api/quiz/attempt
-import { sanitizeLangCode, enforceRateLimit } from "@/lib/security";
-
 export async function POST(req: NextRequest) {
   const rateLimit = enforceRateLimit(req, "/api/quiz/attempt", 30, 60_000);
   if (!rateLimit.allowed) {
@@ -11,6 +11,11 @@ export async function POST(req: NextRequest) {
       { error: "Rate limit exceeded. Try again later." },
       { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter ?? 60) } }
     );
+  }
+
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
@@ -28,6 +33,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (requesterUid !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   // Ensure user row exists before inserting attempt (foreign key constraint)
   await prisma.user.upsert({
     where: { id: userId },
@@ -38,8 +47,8 @@ export async function POST(req: NextRequest) {
   const safeLang = sanitizeLangCode(lang, ["ja", "en", "es", "fr"], "en");
   const sanitizedAnswers = Array.isArray(answers)
     ? answers
-        .filter((a: any) => a && typeof a === "object")
-        .map((a: any) => ({
+        .filter((a: unknown): a is Record<string, unknown> => Boolean(a) && typeof a === "object")
+        .map((a) => ({
           questionIndex: Number(a.questionIndex ?? 0),
           selectedOption: Number(a.selectedOption ?? 0),
           isCorrect: Boolean(a.isCorrect),
