@@ -44,38 +44,34 @@ ENV NEXT_PUBLIC_FIREBASE_APP_ID=$NEXT_PUBLIC_FIREBASE_APP_ID
 
 ENV NEXT_PUBLIC_BETTER_AUTH_URL=$NEXT_PUBLIC_BETTER_AUTH_URL
 
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
+
 # Build Next.js app
 RUN npm run build
 
 
-# ---- Runner (Production) ----
+# ---- Runner ----
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Create non-root user
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
 
-# Required runtime files (Next.js standalone)
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma runtime support (IMPORTANT)
+# Prisma runtime files (FIXED)
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/generated ./generated
 
-# Switch to non-root user
 USER nextjs
 
-# CSBI / Docker port
 EXPOSE 3000
-
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Start server
 CMD ["node", "server.js"]
