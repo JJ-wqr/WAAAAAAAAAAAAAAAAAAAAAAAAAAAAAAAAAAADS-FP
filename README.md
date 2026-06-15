@@ -1,4 +1,6 @@
-# Lab Final Project – Web Application Development and Security
+# Linguiny - AI Language Learning Platform
+
+### Lab Final Project – Web Application Development and Security
 Course Code: COMP6703001<br>
 Course Name: Web Application Development and Security<br>
 Institution: BINUS University International<br>
