@@ -1,29 +1,185 @@
-# Lab Final Project – Web Application Development and Security
+# Linguiny - AI Language Learning Platform
+
+### Lab Final Project – Web Application Development and Security
 Course Code: COMP6703001<br>
 Course Name: Web Application Development and Security<br>
 Institution: BINUS University International<br>
 
-# 1. Project Information
+# Group Information
+Group Name: Linguiny
 
-Project Title: Linguiniy <br>
+Class: L4BC
+
+### Members
+- David Nathanael Halim (2802569346)
+- Davin Alexander (2802530653)
+- Jeremy Nathanael Gunawan (2802522960)
+
+# Project Information
+
+Project Title: Linguiny – AI-Powered Language Learning Platform <br>
 Project Domain: Language Learning Web Application
 
-# 2. Tech Stack
+### Project Description
+Linguiny is a web-based language learning application designed to help users improve their language skills through interactive lessons, quizzes, AI-powered conversations, and pronunciation practice.
 
-Frontend        : Next.js<br>
-Backend         : Node.js or Next.js<br>
-API REST        : REST API<br>
-Database        : PostgreSQL (Main Database for project and user data) / Firebase (for auth only)<br>
-Containerization: Docker<br>
-Deployment      : University Server OR Live deployment with HTTPS  (not fully decided yet)<br>
-Development & Design Tools  :  Figma (UI/UX Design) and Draw.io<br>
-Version Control : GitHub<br>
+The platform supports multiple languages and provides personalized learning experiences through adaptive learning mechanisms and AI-generated feedback.
 
-# 3. System Architecture
+# Architecture Design
+## System Architecture
+### Frontend
+- Next.js
+- React
+- Tailwind CSS
 
-# 3.1 Architecture Diagram
+### Backend
+- Next.js API Routes
 
-![System Architecture](Diagrams/architecture-diagram.png)<br>
+### Database
+- Firebase Firestore
+- PostgreSQL
 
-# 3.2 Architecture Explanation
-A monolithic backend architecture is better for a language learning web application because it simplifies development, deployment, and data management. Since most language learning systems rely heavily on consistent user progress tracking and integrated business logic, a single unified backend reduces complexity, improves maintainability, lowers infrastructure cost, and provides sufficient performance for small to medium-scale applications.
+### Authentication
+- Firebase Authentication
+
+### AI Service
+- Groq API (Llama 3.3 70B Versatile)
+
+### Deployment
+- Docker
+- GitHub Actions CI/CD
+- CSBIHub Remote Server
+
+## User Requirement Specification (URS)
+### Learner
+- Register and login securely
+- Select preferred learning language
+- Access vocabulary, grammar, listening, and speaking lessons
+- Complete quizzes and assessments
+- Track learning progress
+- Set learning goals
+- Practice conversations with AI
+- Receive AI-generated explanations and feedback
+
+### Admin
+- Manage lesson content
+- Manage users
+- Monitor platform activity
+- Maintain learning materials
+
+## Software Requirement Specification (SRS)
+### Functional Requirements
+#### Authentication
+- Users can register accounts.
+- Users can login and logout.
+- Users can manage profile information.
+
+#### Lessons
+- Users can access learning modules.
+- Users can study vocabulary.
+- Users can study grammar.
+
+#### Quiz System
+- Users can answer quizzes.
+- The system evaluates answers.
+- The system stores quiz results.
+- The system provides feedback.
+
+#### Progress Tracking
+- Users can view progress statistics.
+- Users can view completed lessons.
+- Users can monitor achievements.
+
+#### AI Features
+- AI generates conversation practice.
+- AI explains quiz answers.
+
+### Non-Functional Requirements
+#### Performance
+
+
+#### Security
+
+
+#### Usability
+
+
+#### Reliability
+
+
+# Features (Per Member)
+## David Nathanael Halim
+### Security Features
+- XSS Protection
+- API Rate Limiting
+
+### UI/UX
+- Responsive Navigation
+- User Settings
+- Notifications
+- Logo Integration
+- Sidebar Improvements
+- General UI Refinements
+
+### Testing
+- Frontend Testing
+- Backend API Testing
+- Integration Testing
+- Security Testing
+- AI Functionality Testing
+
+### Deployment & Infrastructure
+- Docker Configuration
+- CI/CD Pipeline Setup
+- GitHub Repository Management
+- Production Deployment Preparation
+
+### Additional Features
+- Text-to-Speech for Vocabulary Lessons
+
+## Davin Alexander
+
+
+
+## Jeremy Nathanael Gunawan
+
+
+# Security Implementation
+The application implements several security measures:
+
+## Secure Authentication
+- Firebase Authentication
+- Protected Routes
+- Session Management
+
+## Role-Based Access Control
+- Learner Role
+- Admin Role
+
+## XSS Protection
+- Input Sanitization
+- Server-side Validation
+- Safe Rendering of User Content
+
+## Rate Limiting
+- Applied on AI API routes
+- Applied on user-generated submissions
+- Prevents abuse and excessive requests
+
+# Testing Strategy
+## Frontend Testing
+
+
+
+## Backend & API Testing
+
+
+
+## Integration Testing
+
+
+
+## Security Testing
+
+
+## AI Functionality Testing
