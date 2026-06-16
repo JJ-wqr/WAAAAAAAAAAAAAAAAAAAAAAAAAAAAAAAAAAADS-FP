@@ -7,7 +7,6 @@ Institution: BINUS University International<br>
 
 # Group Information
 Group Name: Linguiny
-
 Class: L4BC
 
 ### Members
@@ -16,7 +15,6 @@ Class: L4BC
 - Jeremy Nathanael Gunawan (2802522960)
 
 # Project Information
-
 Project Title: Linguiny – AI-Powered Language Learning Platform <br>
 Project Domain: Language Learning Web Application
 
