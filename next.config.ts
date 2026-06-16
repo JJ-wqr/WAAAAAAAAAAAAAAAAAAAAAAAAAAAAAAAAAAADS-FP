@@ -38,6 +38,17 @@ const nextConfig: NextConfig = {
             key: "Referrer-Policy",
             value: "origin-when-cross-origin",
           },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.firebase.com *.firebaseapp.com firestore.googleapis.com api.groq.com",
+              "connect-src 'self' *.firebase.com *.firebaseapp.com firestore.googleapis.com api.groq.com wss://*.firebaseio.com wss://firestore.googleapis.com https://firestore.googleapis.com",
+              "img-src 'self' data: https:",
+              "style-src 'self' 'unsafe-inline'",
+              "font-src 'self' data:",
+            ].join(";"),
+          },
         ],
       },
     ];
