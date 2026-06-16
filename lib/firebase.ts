@@ -42,9 +42,9 @@ if (typeof window !== "undefined") {
 }
 
 // Export the initialized instances (may be null if initialization failed)
-export const auth = _auth as ReturnType<typeof getAuth> | null;
-export const db = _db as ReturnType<typeof initializeFirestore> | null;
-export const googleProvider = _googleProvider as GoogleAuthProvider | null;
+export const auth = _auth as ReturnType<typeof getAuth>;
+export const db = _db as ReturnType<typeof initializeFirestore>;
+export const googleProvider = _googleProvider as GoogleAuthProvider;
 
 // Helpful runtime checks for consumers
 export function ensureClientFirebase() {
