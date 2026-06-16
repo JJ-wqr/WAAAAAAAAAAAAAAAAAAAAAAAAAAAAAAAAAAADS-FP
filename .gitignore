@@ -31,17 +31,8 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-# Local development - contains sensitive credentials
-.env.local
-.env.*
-.env.development.local
-# Production/staging environments
-.env
+.env*
 .env.production
-.env.production.local
-# Service account credentials
-firebase-key.json
-*.json.key
 
 # vercel
 .vercel

@@ -10,7 +10,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
-import { auth, googleProvider, db, ensureClientFirebase } from "@/lib/firebase";
+import { auth, googleProvider, db } from "@/lib/firebase";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -19,12 +19,6 @@ export default function LoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
-      ensureClientFirebase();
-      
-      if (!auth || !googleProvider) {
-        throw new Error("Firebase not properly initialized. Please refresh the page.");
-      }
-
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const isNew = getAdditionalUserInfo(result)?.isNewUser ?? false;
@@ -62,27 +56,13 @@ export default function LoginForm() {
       router.push("/dashboard");
     } catch (error: any) {
       console.error(error);
-      // Don't show error if user closed the popup intentionally
-      if (error?.code === "auth/popup-closed-by-user") {
-        return;
-      }
-      const errorMessage = 
-        error?.code === "auth/invalid-credential" ? "Invalid email or password." :
-        error?.code === "auth/user-not-found" ? "No account found with this email." :
-        error?.message ?? "Google sign-in failed. Please try again.";
-      toast.error(errorMessage);
+      toast.error(error.message ?? "Google sign-in failed. Please try again.");
     }
   };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      ensureClientFirebase();
-      
-      if (!auth) {
-        throw new Error("Firebase not properly initialized. Please refresh the page.");
-      }
-
       const result = await signInWithEmailAndPassword(auth, email, password);
       const user = result.user;
 
@@ -100,12 +80,7 @@ export default function LoginForm() {
       toast.success("Login Successful");
       router.push("/dashboard");
     } catch (error: any) {
-      const errorMessage = 
-        error?.code === "auth/invalid-credential" ? "Invalid email or password." :
-        error?.code === "auth/user-not-found" ? "No account found with this email." :
-        error?.code === "auth/too-many-requests" ? "Too many login attempts. Please try again later." :
-        error?.message ?? "Login failed. Please try again.";
-      toast.error(errorMessage);
+      toast.error(error.message ?? "Login failed. Please try again.");
     }
   };
 

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth, ensureClientFirebase } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 
 const AuthContext = createContext<{
   user: User | null;
@@ -13,34 +13,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    setIsHydrated(true);
-    try {
-      ensureClientFirebase();
-    } catch (err) {
-      console.error("Auth provider initialization error:", err);
-      setLoading(false);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth as any, (u) => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
-
-  // Prevent hydration mismatch by not rendering until after hydration
-  if (!isHydrated) {
-    return (
-      <AuthContext.Provider value={{ user: null, loading: true }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

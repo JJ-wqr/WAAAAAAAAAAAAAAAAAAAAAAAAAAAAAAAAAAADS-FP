@@ -1,15 +1,6 @@
 import { sanitizeText, enforceRateLimit } from "@/lib/security";
 
 export async function POST(req: Request) {
-  // Check for required environment variables
-  if (!process.env.GROQ_API_KEY) {
-    console.error("GROQ_API_KEY is not set");
-    return Response.json(
-      { feedback: "AI service is not configured. Please ensure GROQ_API_KEY is set in environment variables." },
-      { status: 503 }
-    );
-  }
-
   const rateLimit = enforceRateLimit(req, "/api/ai/feedback", 20, 60_000);
   if (!rateLimit.allowed) {
     return new Response(JSON.stringify({ feedback: "Rate limit exceeded. Try again later." }), {

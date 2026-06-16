@@ -86,7 +86,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${geistSans.variable} antialiased min-h-screen bg-[var(--bg-page)] text-[var(--text-base)]`}>
+      <body className={`${geistSans.variable} antialiased min-h-screen bg-[var(--bg-page)] text-[var(--text-base)]`}>
         <ThemeProvider>
           <AuthProvider>
             {children}

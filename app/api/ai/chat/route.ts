@@ -8,15 +8,6 @@ const LANG_NAMES: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
-  // Check for required environment variables
-  if (!process.env.GROQ_API_KEY) {
-    console.error("GROQ_API_KEY is not set");
-    return Response.json(
-      { error: "AI service is not configured. Please ensure GROQ_API_KEY is set in environment variables." },
-      { status: 503 }
-    );
-  }
-
   const rateLimit = enforceRateLimit(req, "/api/ai/chat", 15, 60_000);
   if (!rateLimit.allowed) {
     return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again later." }), {

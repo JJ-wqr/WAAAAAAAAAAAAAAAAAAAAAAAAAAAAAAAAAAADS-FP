@@ -29,18 +29,6 @@ function fallbackRecommendation(scores: number[]): { level: Level; recommendatio
 }
 
 export async function POST(req: Request) {
-  // Check for required environment variables
-  if (!process.env.GROQ_API_KEY) {
-    console.error("GROQ_API_KEY is not set");
-    return Response.json(
-      {
-        level: "beginner",
-        recommendation: "AI service is not available. Using default difficulty level.",
-      },
-      { status: 200 }
-    );
-  }
-
   const rateLimit = enforceRateLimit(req, "/api/ai/adaptive-difficulty", 10, 60_000);
   if (!rateLimit.allowed) {
     return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again later." }), {
