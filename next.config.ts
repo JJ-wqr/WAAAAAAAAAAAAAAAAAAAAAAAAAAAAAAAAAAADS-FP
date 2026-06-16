@@ -38,6 +38,20 @@ const nextConfig: NextConfig = {
             key: "Referrer-Policy",
             value: "origin-when-cross-origin",
           },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              // Allow scripts from firebase + google static assets and Groq
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.firebase.com *.firebaseapp.com firestore.googleapis.com api.groq.com www.gstatic.com apis.google.com accounts.google.com",
+              // Allow connections to Firebase auth/token endpoints, Google OAuth, Firestore, Groq, and websockets
+              "connect-src 'self' *.firebase.com *.firebaseapp.com firestore.googleapis.com api.groq.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://accounts.google.com https://oauth2.googleapis.com https://apis.google.com wss://*.firebaseio.com wss://firestore.googleapis.com https://firestore.googleapis.com",
+              "img-src 'self' data: https:",
+              "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
+              "font-src 'self' data: fonts.gstatic.com",
+              "frame-src 'self' accounts.google.com",
+            ].join(";"),
+          },
         ],
       },
     ];

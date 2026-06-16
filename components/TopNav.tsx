@@ -7,7 +7,7 @@ import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { signOut, updateProfile } from "firebase/auth";
 import { useAuth } from "@/components/authprovider";
 import { useLang } from "@/components/languageprovider";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, ensureClientFirebase } from "@/lib/firebase";
 import { unitData } from "@/lib/lessonData";
 import { flashcardDecks } from "@/lib/flashcardData";
 import { vocabularyData } from "@/lib/vocabularyData";
@@ -200,8 +200,14 @@ export function TopNav() {
   }
 
   async function handleLogout() {
-    await signOut(auth);
-    router.push("/");
+    try {
+      ensureClientFirebase();
+      await signOut(auth as any);
+    } catch (e) {
+      console.error("Logout error:", e);
+    } finally {
+      router.push("/");
+    }
   }
 
   return (

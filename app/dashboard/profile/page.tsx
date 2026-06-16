@@ -64,8 +64,15 @@ export default function ProfilePage() {
     .slice(0, 2);
 
   const handleLogout = async () => {
-    await signOut(auth);
-    router.push("/");
+    try {
+      // ensure firebase is initialized in the browser
+      (await import("@/lib/firebase")).ensureClientFirebase();
+      await signOut(auth as any);
+    } catch (e) {
+      console.error("Logout error:", e);
+    } finally {
+      router.push("/");
+    }
   };
 
   return (
