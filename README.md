@@ -137,7 +137,26 @@ The platform supports multiple languages and provides personalized learning expe
 - Text-to-Speech for Vocabulary Lessons
 
 ## Davin Alexander
+# AI Implementation
+Implementing Groq AI for AI features
 
+# Testing
+- Frontend Testing
+- Backend API Testing
+- Integration Testing
+- Security Testing
+- AI Functionality Testing
+- Authentication Testing
+  
+# Features
+- Added AI Conversation
+- Added 4 Languages (Spanish, French, Japanese, Indonesian)
+- Added Indonesian pronunciation
+
+- Created Prisma & Swagger API-docs
+
+# Authentication
+Create a Google authentication from Firebase & email.
 
 
 ## Jeremy Nathanael Gunawan
