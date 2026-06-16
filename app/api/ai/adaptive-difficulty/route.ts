@@ -1,5 +1,4 @@
-import { sanitizeLangCode, enforceRateLimit } from "@/lib/security";
-import { getAuthenticatedUid } from "@/lib/firebaseAdmin";
+import { sanitizeChatMessages, sanitizeLangCode, enforceRateLimit } from "@/lib/security";
 
 const LANG_NAMES: Record<string, string> = {
   ja: "Japanese",
@@ -8,28 +7,8 @@ const LANG_NAMES: Record<string, string> = {
   fr: "French",
 };
 
-const LEVELS = ["beginner", "intermediate", "advanced"] as const;
-type Level = (typeof LEVELS)[number];
-
-function fallbackRecommendation(scores: number[]): { level: Level; recommendation: string } {
-  if (scores.length === 0) {
-    return {
-      level: "beginner",
-      recommendation: "Complete a few quizzes so we can tailor your difficulty level.",
-    };
-  }
-  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  if (avg >= 80) {
-    return { level: "advanced", recommendation: "You're doing great — try some advanced lessons next!" };
-  }
-  if (avg >= 60) {
-    return { level: "intermediate", recommendation: "Solid progress — keep practicing at your current level." };
-  }
-  return { level: "beginner", recommendation: "Review the basics a bit more before moving forward." };
-}
-
 export async function POST(req: Request) {
-  const rateLimit = enforceRateLimit(req, "/api/ai/adaptive-difficulty", 10, 60_000);
+  const rateLimit = enforceRateLimit(req, "/api/ai/chat", 15, 60_000);
   if (!rateLimit.allowed) {
     return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again later." }), {
       status: 429,
@@ -37,38 +16,88 @@ export async function POST(req: Request) {
     });
   }
 
-  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
-  if (!requesterUid) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { userId, lang, recentScores } = await req.json();
-
-  const safeUserId = String(userId ?? "").trim();
-  if (!safeUserId || requesterUid !== safeUserId) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
+  const { messages, lang } = await req.json();
+  const safeMessages = sanitizeChatMessages(messages);
+  if (safeMessages.length === 0) {
+    return new Response(JSON.stringify({ error: "Invalid chat data." }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const safeLang = sanitizeLangCode(lang, Object.keys(LANG_NAMES), "en");
   const langName = LANG_NAMES[safeLang] ?? "the target language";
 
-  const safeScores: number[] = Array.isArray(recentScores)
-    ? recentScores
-        .map((s: unknown) => Number(s))
-        .filter((s: number) => Number.isFinite(s) && s >= 0 && s <= 100)
-        .slice(0, 3)
-    : [];
+  const systemPrompt = `You are a friendly and encouraging language tutor helping the user practice ${langName} through conversation.
+Rules:
+- Respond primarily in ${langName}
+- Add brief English translations in parentheses for difficult or uncommon words
+- Gently correct grammar mistakes if you notice them, then continue the conversation
+- Keep responses short and conversational (2-4 sentences max)
+- Ask follow-up questions to keep the conversation going
+- Adjust your vocabulary to match the user's apparent level`;
 
-  if (safeScores.length === 0) {
-    return Response.json(fallbackRecommendation(safeScores));
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "system", content: systemPrompt }, ...safeMessages],
+        max_tokens: 200,
+        temperature: 0.7,
+      }),
+      cache: "no-store",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Groq chat error:", JSON.stringify(data));
+      return Response.json(
+        { error: data?.error?.message ?? "AI error" },
+        { status: 500 }
+      );
+    }
+
+    const reply =
+      data?.choices?.[0]?.message?.content?.trim() ?? "Sorry, I didn't understand.";
+
+    // Second call: check the user's last message for grammar errors
+    const correction = await checkGrammar(safeMessages, langName);
+
+    return Response.json({ reply, correction });
+  } catch (error) {
+    console.error("Chat AI error:", error);
+    return Response.json(
+      { error: "AI service error. Please try again." },
+      { status: 500 }
+    );
   }
+}
 
-  const prompt = `A language learner studying ${langName} has these recent quiz scores (as percentages, most recent last): ${safeScores.join(", ")}.
+/**
+ * Checks the user's most recent message for grammar errors in the target
+ * language. Returns a short correction string, or `null` if no errors are
+ * found or the AI call fails (failure here should never break the main chat
+ * reply).
+ */
+async function checkGrammar(
+  messages: { role: "user" | "assistant"; content: string }[],
+  langName: string
+): Promise<string | null> {
+  const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
+  if (!lastUserMessage || !lastUserMessage.content.trim()) return null;
 
-Based on this performance, decide an appropriate difficulty level for their next lessons and give a short, encouraging, 1-sentence recommendation.
+  const prompt = `You are a ${langName} grammar checker. Look at the following text written by a language learner and check it for grammar, spelling, or word-choice errors in ${langName}.
 
-Respond ONLY with valid JSON in this exact format, no extra text, no markdown code fences:
-{"level": "beginner" | "intermediate" | "advanced", "recommendation": "1 short sentence"}`;
+Text: "${lastUserMessage.content}"
+
+If there are no significant errors, respond with exactly: NONE
+If there are errors, respond with ONLY a short correction tip (max 1-2 sentences), written in English, briefly explaining the mistake and the corrected form. Do not include any other text.`;
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -81,38 +110,24 @@ Respond ONLY with valid JSON in this exact format, no extra text, no markdown co
         model: "llama-3.3-70b-versatile",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 100,
-        temperature: 0.4,
-        response_format: { type: "json_object" },
+        temperature: 0.3,
       }),
       cache: "no-store",
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error("Groq adaptive-difficulty error:", JSON.stringify(data));
-      return Response.json(fallbackRecommendation(safeScores));
+      console.error("Groq grammar-check error:", response.statusText);
+      return null;
     }
 
-    const raw = data?.choices?.[0]?.message?.content?.trim() ?? "";
+    const data = await response.json();
+    const raw = data?.choices?.[0]?.message?.content?.trim() ?? "NONE";
 
-    try {
-      const parsed = JSON.parse(raw);
-      const level = (LEVELS as readonly string[]).includes(String(parsed?.level))
-        ? (String(parsed.level) as Level)
-        : fallbackRecommendation(safeScores).level;
-      const recommendation =
-        typeof parsed?.recommendation === "string" && parsed.recommendation.trim()
-          ? parsed.recommendation.trim().slice(0, 200)
-          : fallbackRecommendation(safeScores).recommendation;
+    if (!raw || raw.toUpperCase().startsWith("NONE")) return null;
 
-      return Response.json({ level, recommendation });
-    } catch (parseErr) {
-      console.error("Failed to parse adaptive-difficulty JSON:", parseErr, raw);
-      return Response.json(fallbackRecommendation(safeScores));
-    }
+    return raw.slice(0, 300);
   } catch (error) {
-    console.error("Adaptive-difficulty AI error:", error);
-    return Response.json(fallbackRecommendation(safeScores));
+    console.error("Grammar-check AI error:", error);
+    return null;
   }
 }
