@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sanitizeText, isValidEmail, enforceRateLimit } from "@/lib/security";
+import { getAuthenticatedUid } from "@/lib/firebaseAdmin";
 
 export async function POST(req: NextRequest) {
   const rateLimit = enforceRateLimit(req, "/api/sync-user", 30, 60_000);
@@ -11,11 +12,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Verify the caller is who they claim to be
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { uid, email, name, image } = await req.json();
   const emailValue = String(email ?? "").trim();
 
   if (!uid || !emailValue || !isValidEmail(emailValue)) {
     return NextResponse.json({ error: "Missing or invalid uid/email" }, { status: 400 });
+  }
+
+  // Caller can only sync their own account
+  if (requesterUid !== uid) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const safeName = sanitizeText(name, 100);

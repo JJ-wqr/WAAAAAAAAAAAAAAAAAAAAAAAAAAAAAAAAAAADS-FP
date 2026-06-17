@@ -1,4 +1,5 @@
 import { sanitizeText, enforceRateLimit } from "@/lib/security";
+import { getAuthenticatedUid } from "@/lib/firebaseAdmin"; 
 
 export async function POST(req: Request) {
   const rateLimit = enforceRateLimit(req, "/api/ai/feedback", 20, 60_000);
@@ -7,6 +8,12 @@ export async function POST(req: Request) {
       status: 429,
       headers: { "Content-Type": "application/json", "Retry-After": String(rateLimit.retryAfter ?? 60) },
     });
+  }
+
+  // prevents anonymous Groq API quota abuse
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { question, userAnswer, correctAnswer } = await req.json();
@@ -52,7 +59,6 @@ Correct Answer: ${safeCorrectAnswer}`;
         { status: 500 }
       );
     }
-
     const feedback =
       data?.choices?.[0]?.message?.content?.trim() ?? "No AI response.";
 

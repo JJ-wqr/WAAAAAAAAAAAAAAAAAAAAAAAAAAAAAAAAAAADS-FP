@@ -1,4 +1,5 @@
 import { sanitizeChatMessages, sanitizeLangCode, enforceRateLimit } from "@/lib/security";
+import { getAuthenticatedUid } from "@/lib/firebaseAdmin";
 
 const LANG_NAMES: Record<string, string> = {
   ja: "Japanese",
@@ -14,6 +15,12 @@ export async function POST(req: Request) {
       status: 429,
       headers: { "Content-Type": "application/json", "Retry-After": String(rateLimit.retryAfter ?? 60) },
     });
+  }
+
+  // Require authentication — prevents anonymous Groq API quota abuse
+  const requesterUid = await getAuthenticatedUid(req.headers.get("authorization"));
+  if (!requesterUid) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { messages, lang } = await req.json();
