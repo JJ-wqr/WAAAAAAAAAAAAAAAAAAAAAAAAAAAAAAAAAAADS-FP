@@ -160,8 +160,32 @@ Create a Google authentication from Firebase & email.
 
 
 ## Jeremy Nathanael Gunawan
+# Implemented features:
+Architected backend environment management and localized data parsing frameworks.
 
+Configured automated multi-runner test execution workflows via GitHub Actions (cicd.yml).
 
+Built the underlying data validation pipelines for user state synchronization, adaptive performance matrices, and lesson quiz records.
+
+# API endpoints handled:
+User Auth/Sync: POST /api/sync-user, GET /api/users/[uid], PUT /api/users/[uid]
+
+Core Core/Quiz: GET /api/lessons, POST /api/quiz/attempt, GET /api/quiz/answers/[attemptId]
+
+#AI Engine: POST /api/ai/chat, POST /api/ai/adaptive-difficulty, POST /api/ai/feedback
+# Security work:
+
+Implemented server-side payload sanitizers (sanitizeText(), sanitizeChatMessages()) to neutralize Stored/Reflected XSS vectors and filter custom token properties.
+
+Secured API routing layers against injection attacks and cross-tenant authorization bypasses by validating Firebase sessions against request parameters.
+
+Deployed request rate-limiting controls and HTTP protection headers across high-frequency pathways.
+
+# gAI-related work:
+
+Built integration modules connecting the platform to Groq API services for conversational translation tutoring, adaptive level evaluation, and contextual quiz evaluation.
+
+Engineered systemic defensive controls (prepended isolated system prompts) to prevent prompt injection and mapped secure, deterministic fallback methods (fallbackRecommendation()) to handle api outages or malformed text blocks cleanly.
 # Security Implementation
 The application implements several security measures:
 
