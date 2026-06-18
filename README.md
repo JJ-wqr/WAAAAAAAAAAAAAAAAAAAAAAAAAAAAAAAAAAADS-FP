@@ -29,6 +29,49 @@ The platform supports multiple languages and provides personalized learning expe
 ## Architecture Design
 ### System Architecture
 ![System Architecture](Diagrams/architecture-diagram.png)<br>
+Browser (User)
+    |
+    | HTTPS
+    ↓
+Next.js App (Single Codebase)
+├── Frontend (React/Tailwind — app/dashboard/**, app/login, app/register)
+│   ├── AuthGuard.tsx        — Client-side route protection
+│   ├── authprovider.tsx     — Firebase Auth state global context
+│   └── languageprovider.tsx — Global selected language context
+│
+├── Next.js API Routes (app/api/**)  ← The "backend"
+│   ├── /api/sync-user              — POST: Firebase → Prisma sync
+│   ├── /api/users/[uid]            — GET/PUT/DELETE user (auth-protected)
+│   ├── /api/users/[uid]/sessions   — GET sessions
+│   ├── /api/sessions/[sessionId]   — DELETE session
+│   ├── /api/lessons                — GET lessons (no auth)
+│   ├── /api/lessons/[id]           — GET lesson + quiz
+│   ├── /api/quiz/attempt           — POST quiz attempt (auth-protected)
+│   ├── /api/quiz/attempt/[id]      — GET/DELETE attempt
+│   ├── /api/quiz/attempts/[uid]    — GET user history
+│   ├── /api/leaderboard            — GET leaderboard )
+│   ├── /api/flashcards/[lang]      — GET flashcard deck
+│   ├── /api/vocabulary/[lang]      — GET vocabulary
+│   ├── /api/ai/chat                — POST: Groq conversation tutor
+│   ├── /api/ai/feedback            — POST: Groq quiz feedback
+│   ├── /api/ai/generate-sentence   — POST: Groq sentence generator
+│   ├── /api/ai/vocabulary-example  — POST: Groq vocab example
+│   └── /api/ai/adaptive-difficulty — POST: 
+│
+├── lib/
+│   ├── security.ts     — Rate limiting, sanitizeText, sanitizeChatMessages
+│   ├── firebaseAdmin.ts — Server-side token verification (getAuthenticatedUid)
+│   ├── firebase.ts     — Client-side Firebase init
+│   └── prisma.ts       — Prisma client singleton
+│
+└── middleware.ts       
+    |
+    ↓
+External Services
+├── Firebase Auth       — User identity, Google OAuth, email/password
+├── Firebase Firestore  — User profile data (XP, streak, goals, dailyGoals)
+├── PostgreSQL (Prisma) — Users, Sessions, Accounts, QuizAttempts, QuizAnswers
+└── Groq API (Llama 3.3 70B) — All AI features
 #### Frontend
 - Next.js
 - React
