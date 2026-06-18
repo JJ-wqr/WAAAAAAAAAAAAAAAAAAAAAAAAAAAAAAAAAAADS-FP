@@ -28,6 +28,7 @@ The platform supports multiple languages and provides personalized learning expe
 
 ## Architecture Design
 ### System Architecture
+![System Architecture](Diagrams/architecture-diagram.png)<br>
 #### Frontend
 - Next.js
 - React
